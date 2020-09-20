@@ -50,6 +50,10 @@
 	float4 ambientColor;
 	float4 diffuseColor;
 
+#if PF_FOG
+	float3 cameraPosition;
+#endif
+
 #if PF_CAUSTICS
 	float time;
 #endif
@@ -58,10 +62,6 @@
 [[vk::binding(2)]] cbuffer fragmentUniforms : register(b1)
 {
 	float4 cameraAmbientColor;
-
-#if PF_FOG
-	float3 cameraPosition;
-#endif
 };
 
 struct InputVertex
@@ -95,6 +95,10 @@ struct FragmentVertex
 
 #if PF_FOG || PF_CAUSTICS
 	half3 worldPosition : TEXCOORD2;
+#endif
+
+#if PF_FOG
+	half3 fogDir : TEXCOORD5;
 #endif
 
 #if RN_UV0
@@ -137,6 +141,12 @@ FragmentVertex main_vertex(InputVertex vert)
 	result.worldPosition = mul(modelMatrix, position).xyz;
 #endif
 
+#if PF_FOG
+	result.fogDir = result.worldPosition - cameraPosition;
+	half correctionDistance = max(result.worldPosition.y + 2.0, 0.0);
+	result.fogDir -= result.fogDir * (correctionDistance / result.fogDir.y);
+#endif
+
 #if PF_CAUSTICS
 	result.causticCoords.xy = result.worldPosition.xz * 0.1 + time * 0.01;
 	result.causticCoords.zw = -result.worldPosition.xz * 0.1 + time * 0.01;
@@ -175,10 +185,7 @@ half4 main_fragment(FragmentVertex vert) : SV_TARGET
 #endif
 
 #if PF_FOG
-	half3 cameraDir = vert.worldPosition - cameraPosition;
-	half correctionDistance = max(vert.worldPosition.y + 2.0, 0.0);
-	cameraDir -= cameraDir * (correctionDistance / cameraDir.y);
-	half fogFactor = saturate(dot(cameraDir, cameraDir) * 0.0005);
+	half fogFactor = saturate(dot(vert.fogDir, vert.fogDir) * 0.0005);
 	color.rgb = lerp(color.rgb, half3(0.0, 0.1, 0.09), fogFactor);
 #endif
 

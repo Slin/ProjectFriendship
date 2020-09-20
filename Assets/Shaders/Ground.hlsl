@@ -53,7 +53,7 @@ FragmentVertex ground_vertex(InputVertex vert)
 	result.detailCoords = result.worldPosition.xz * 1.0;
 	result.causticCoords.xy = result.worldPosition.xz * 0.1 + time * 0.01;
 	result.causticCoords.zw = -result.worldPosition.xz * 0.1 + time * 0.01;
-	result.causticBlend = saturate(vert.normal.y) * saturate(1.0 + vert.position.y);
+	result.causticBlend = saturate(vert.normal.y) * saturate((20.0 + result.worldPosition.y)/20.0);
 
 	if(result.worldPosition.y > -2.0) result.causticBlend = 0.0;
 

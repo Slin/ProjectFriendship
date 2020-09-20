@@ -14,6 +14,7 @@
 
 #include "PFTypes.h"
 #include "PFCameraManager.h"
+#include "PFPlayer.h"
 
 namespace PF
 {
@@ -51,12 +52,11 @@ namespace PF
 		void WillUpdate(float delta) override;
 
 		CameraManager _cameraManager;
-		
-		RN::Array *_levelNodes;
-
-		RN::ShaderLibrary *_shaderLibrary;
-
 		RN::VRWindow *_vrWindow;
+		
+		RN::ShaderLibrary *_shaderLibrary;
+		RN::Array *_levelNodes;
+		Player *_player;
 
 		RN::PhysXWorld *_physicsWorld;
 		

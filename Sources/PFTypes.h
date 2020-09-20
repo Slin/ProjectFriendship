@@ -26,7 +26,8 @@ namespace PF
 			MaterialDefault,
 			MaterialGround,
 			MaterialMoving,
-			MaterialWater
+			MaterialWater,
+			MaterialPlayer
 		};
 	}
 }

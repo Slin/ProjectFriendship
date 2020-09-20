@@ -4,3 +4,5 @@ Resources/shaders
 Other/appinfo-oculus.json
 Builds
 Releases
+*.astc
+*.dds

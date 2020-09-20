@@ -76,6 +76,10 @@ namespace PF
 		AddAttachment(_physicsWorld->Autorelease());
 
 		LoadLevel();
+		
+		_player = new Player();
+		AddNode(_player->Autorelease());
+		_player->SetWorldPosition(RN::Vector3(0.0f, -5.0f, 0.0f));
 	}
 
 	void World::DidBecomeActive()
@@ -133,6 +137,7 @@ namespace PF
 					shaderOptions->AddDefine(RNCSTR("PF_CAUSTICS"), RNCSTR("1"));
 					material->SetVertexShader(shaderLibrary->GetShaderWithName(RNCSTR("main_vertex"), shaderOptions));
 					material->SetFragmentShader(shaderLibrary->GetShaderWithName(RNCSTR("main_fragment"), shaderOptions));
+					material->AddTexture(RN::Texture::WithName(RNCSTR("models/caustics.*")));
 					break;
 				}
 					
@@ -145,8 +150,8 @@ namespace PF
 					RN::Shader::Options *shaderOptions = RN::Shader::Options::WithMesh(lodStage->GetMeshAtIndex(i));
 					material->SetVertexShader(shaderLibrary->GetShaderWithName(RNCSTR("ground_vertex"), shaderOptions));
 					material->SetFragmentShader(shaderLibrary->GetShaderWithName(RNCSTR("ground_fragment"), shaderOptions));
-					material->AddTexture(RN::Texture::WithName(RNCSTR("models/ground_detail.png")));
-					material->AddTexture(RN::Texture::WithName(RNCSTR("models/caustics.png")));
+					material->AddTexture(RN::Texture::WithName(RNCSTR("models/ground_detail.*")));
+					material->AddTexture(RN::Texture::WithName(RNCSTR("models/caustics.*")));
 					break;
 				}
 					
@@ -162,7 +167,7 @@ namespace PF
 					shaderOptions->AddDefine(RNCSTR("PF_CAUSTICS"), RNCSTR("1"));
 					material->SetVertexShader(shaderLibrary->GetShaderWithName(RNCSTR("main_vertex"), shaderOptions));
 					material->SetFragmentShader(shaderLibrary->GetShaderWithName(RNCSTR("main_fragment"), shaderOptions));
-					material->AddTexture(RN::Texture::WithName(RNCSTR("models/caustics.png")));
+					material->AddTexture(RN::Texture::WithName(RNCSTR("models/caustics.*")));
 					break;
 				}
 					
@@ -177,6 +182,21 @@ namespace PF
 					RN::Shader::Options *shaderOptions = RN::Shader::Options::WithMesh(lodStage->GetMeshAtIndex(i));
 					material->SetVertexShader(shaderLibrary->GetShaderWithName(RNCSTR("water_vertex"), shaderOptions));
 					material->SetFragmentShader(shaderLibrary->GetShaderWithName(RNCSTR("water_fragment"), shaderOptions));
+					break;
+				}
+					
+				case Types::MaterialPlayer:
+				{
+					material->SetDepthWriteEnabled(true);
+					material->SetDepthMode(RN::DepthMode::LessOrEqual);
+					material->SetAlphaToCoverage(false);
+					material->SetCullMode(RN::CullMode::BackFace);
+					material->SetAmbientColor(RN::Color::White());
+					RN::Shader::Options *shaderOptions = RN::Shader::Options::WithMesh(lodStage->GetMeshAtIndex(i));
+					shaderOptions->AddDefine(RNCSTR("PF_CAUSTICS"), RNCSTR("1"));
+					material->SetVertexShader(shaderLibrary->GetShaderWithName(RNCSTR("main_vertex"), shaderOptions));
+					material->SetFragmentShader(shaderLibrary->GetShaderWithName(RNCSTR("main_fragment"), shaderOptions));
+					material->AddTexture(RN::Texture::WithName(RNCSTR("models/caustics.*")));
 					break;
 				}
 			}
@@ -224,7 +244,7 @@ namespace PF
 	{
 		RemoveAllLevelNodes();
 		
-		RN::Model *skyModel = RN::Model::WithName(RNCSTR("models/template/sky.sgm"));
+		RN::Model *skyModel = RN::Model::WithName(RNCSTR("models/sky.sgm"));
 		RN::Material *skyMaterial = RN::Material::WithShaders(nullptr, nullptr);
 		skyMaterial->SetDepthMode(RN::DepthMode::LessOrEqual);
 
@@ -243,7 +263,6 @@ namespace PF
 		
 		RN::Model *levelModel = AssignShader(RN::Model::WithName(RNCSTR("models/ground.sgm")), Types::MaterialGround);
 		RN::Entity *levelEntity = new RN::Entity(levelModel);
-		levelEntity->SetScale(RN::Vector3(20.0f));
 		AddLevelNode(levelEntity->Autorelease());
 
 		RN::PhysXMaterial *levelPhysicsMaterial = new RN::PhysXMaterial();
@@ -254,28 +273,23 @@ namespace PF
 		
 		RN::Model *reedModel = AssignShader(RN::Model::WithName(RNCSTR("models/reed.sgm")), Types::MaterialMoving);
 		RN::Entity *reedEntity = new RN::Entity(reedModel);
-		reedEntity->SetScale(RN::Vector3(20.0f));
 		AddLevelNode(reedEntity->Autorelease());
 		
 		RN::Model *stonesModel = AssignShader(RN::Model::WithName(RNCSTR("models/stones.sgm")), Types::MaterialDefault);
 		RN::Entity *stonesEntity = new RN::Entity(stonesModel);
-		stonesEntity->SetScale(RN::Vector3(20.0f));
 		AddLevelNode(stonesEntity->Autorelease());
 		
 		RN::Model *grassModel = AssignShader(RN::Model::WithName(RNCSTR("models/grass.sgm")), Types::MaterialMoving);
 		RN::Entity *grassEntity = new RN::Entity(grassModel);
-		grassEntity->SetScale(RN::Vector3(20.0f));
 		AddLevelNode(grassEntity->Autorelease());
 		
 		RN::Model *lilysModel = AssignShader(RN::Model::WithName(RNCSTR("models/waterlily.sgm")), Types::MaterialMoving);
 		RN::Entity *lilysEntity = new RN::Entity(lilysModel);
-		lilysEntity->SetScale(RN::Vector3(20.0f));
 		AddLevelNode(lilysEntity->Autorelease());
 		
 		RN::Model *waterModel = AssignShader(RN::Model::WithName(RNCSTR("models/water.sgm")), Types::MaterialWater);
 		RN::Entity *waterEntity = new RN::Entity(waterModel);
-		waterEntity->SetScale(RN::Vector3(20.0f));
-		waterEntity->SetWorldPosition(RN::Vector3(0.0f, -0.1f * 20.0f, 0.0f));
+		waterEntity->SetWorldPosition(RN::Vector3(0.0f, -2.0f, 0.0f));
 		waterEntity->SetFlags(RN::Entity::Flags::DrawLate);
 		AddLevelNode(waterEntity->Autorelease());
 	}
