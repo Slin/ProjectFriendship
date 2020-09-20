@@ -1,0 +1,84 @@
+[
+	{
+		"file": "Base.hlsl",
+		"shaders":
+		[
+			{
+				"name": "main_vertex",
+				"type": "vertex",
+
+				"signature":
+				{
+					"options":
+					[
+						"RN_ANIMATIONS",
+						"RN_UV0",
+						"RN_COLOR",
+						"PF_FOG",
+						"PF_CAUSTICS"
+					]
+				}
+			},
+			{
+				"name": "main_fragment",
+				"type": "fragment",
+
+				"signature":
+				{
+					"options":
+					[
+						"RN_UV0",
+						"RN_COLOR",
+						"PF_FOG",
+						"PF_CAUSTICS"
+					]
+				}
+			}
+		]
+	},
+
+	{
+		"file": "Ground.hlsl",
+		"shaders":
+		[
+			{
+				"name": "ground_vertex",
+				"type": "vertex"
+			},
+			{
+				"name": "ground_fragment",
+				"type": "fragment"
+			}
+		]
+	},
+
+	{
+		"file": "Water.hlsl",
+		"shaders":
+		[
+			{
+				"name": "water_vertex",
+				"type": "vertex"
+			},
+			{
+				"name": "water_fragment",
+				"type": "fragment"
+			}
+		]
+	},
+
+	{
+		"file": "PostProcessing.hlsl",
+		"shaders":
+		[
+			{
+				"name": "pp_vertex",
+				"type": "vertex"
+			},
+			{
+				"name": "pp_blit_fragment",
+				"type": "fragment"
+			}
+		]
+	}
+]

@@ -1,0 +1,30 @@
+{
+	"bundle-id": "com.slindev.friendship",
+	"name": "ProjectFriendship",
+	"build-directory": "Builds",
+	"release-directory": "Releases",
+	"cmake-build-type": "Release",
+	"cmake-parameters": "",
+	"cmake-targets~android":
+	[
+		"Rayne",
+		"RaynePhysX",
+		"RayneVulkan",
+		"RayneVR",
+		"RayneOculusMobile",
+		"zlibstatic",
+		"jansson",
+		"png_static",
+		"ProjectFriendship"
+	],
+	"permissions~android":
+	[
+		
+	],
+	"keystore~android": "../../AndroidReleaseKeyStore",
+	"appinfo-file-oculus": "Other/appinfo-oculus.json",
+	"dependencies":
+	{
+		
+	}
+}
