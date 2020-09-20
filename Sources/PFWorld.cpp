@@ -80,6 +80,7 @@ namespace PF
 		_player = new Player();
 		AddNode(_player->Autorelease());
 		_player->SetWorldPosition(RN::Vector3(0.0f, -5.0f, 0.0f));
+		_cameraManager.SetFreeCamera(false);
 	}
 
 	void World::DidBecomeActive()
@@ -275,17 +276,37 @@ namespace PF
 		RN::Entity *reedEntity = new RN::Entity(reedModel);
 		AddLevelNode(reedEntity->Autorelease());
 		
+		RN::PhysXCompoundShape *reedShape = RN::PhysXCompoundShape::WithModel(reedModel, levelPhysicsMaterial->Autorelease(), true);
+		RN::PhysXStaticBody *reedBody = RN::PhysXStaticBody::WithShape(reedShape);
+		reedBody->SetCollisionFilter(Types::CollisionLevel, Types::CollisionAll);
+		reedEntity->AddAttachment(reedBody);
+		
 		RN::Model *stonesModel = AssignShader(RN::Model::WithName(RNCSTR("models/stones.sgm")), Types::MaterialDefault);
 		RN::Entity *stonesEntity = new RN::Entity(stonesModel);
 		AddLevelNode(stonesEntity->Autorelease());
+		
+		RN::PhysXCompoundShape *stonesShape = RN::PhysXCompoundShape::WithModel(stonesModel, levelPhysicsMaterial->Autorelease(), true);
+		RN::PhysXStaticBody *stonesBody = RN::PhysXStaticBody::WithShape(stonesShape);
+		stonesBody->SetCollisionFilter(Types::CollisionLevel, Types::CollisionAll);
+		stonesEntity->AddAttachment(stonesBody);
 		
 		RN::Model *grassModel = AssignShader(RN::Model::WithName(RNCSTR("models/grass.sgm")), Types::MaterialMoving);
 		RN::Entity *grassEntity = new RN::Entity(grassModel);
 		AddLevelNode(grassEntity->Autorelease());
 		
+		RN::PhysXCompoundShape *grassShape = RN::PhysXCompoundShape::WithModel(grassModel, levelPhysicsMaterial->Autorelease(), true);
+		RN::PhysXStaticBody *grassBody = RN::PhysXStaticBody::WithShape(grassShape);
+		grassBody->SetCollisionFilter(Types::CollisionLevel, Types::CollisionAll);
+		grassEntity->AddAttachment(grassBody);
+		
 		RN::Model *lilysModel = AssignShader(RN::Model::WithName(RNCSTR("models/waterlily.sgm")), Types::MaterialMoving);
 		RN::Entity *lilysEntity = new RN::Entity(lilysModel);
 		AddLevelNode(lilysEntity->Autorelease());
+		
+		RN::PhysXCompoundShape *waterlilyShape = RN::PhysXCompoundShape::WithModel(lilysModel, levelPhysicsMaterial->Autorelease(), true);
+		RN::PhysXStaticBody *waterlilyBody = RN::PhysXStaticBody::WithShape(waterlilyShape);
+		waterlilyBody->SetCollisionFilter(Types::CollisionLevel, Types::CollisionAll);
+		lilysEntity->AddAttachment(waterlilyBody);
 		
 		RN::Model *waterModel = AssignShader(RN::Model::WithName(RNCSTR("models/water.sgm")), Types::MaterialWater);
 		RN::Entity *waterEntity = new RN::Entity(waterModel);

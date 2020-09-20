@@ -10,7 +10,7 @@
 
 namespace PF
 {
-	CameraManager::CameraManager() : _defaultPreviewWindowResolution(960, 540), _vrWindow(nullptr), _vrCamera(nullptr), _headCamera(nullptr), _previewCamera(nullptr), _previewWindow(nullptr), _copyEyeToScreenMaterial(nullptr), _vrDebugWindow(nullptr), _cameraTargetAmbientColor(RN::Color::Black()), _cameraTargetAmbientColorChangeRate(RN::Color::Black()), _cameraTargetAmbientColorCompletedCallback(nullptr), _cameraTargetAmbientColorIsWaitingForLastFrame(false), _resetPositionAndRotation(true)
+	CameraManager::CameraManager() : _defaultPreviewWindowResolution(960, 540), _vrWindow(nullptr), _vrCamera(nullptr), _headCamera(nullptr), _previewCamera(nullptr), _previewWindow(nullptr), _copyEyeToScreenMaterial(nullptr), _vrDebugWindow(nullptr), _cameraTargetAmbientColor(RN::Color::Black()), _cameraTargetAmbientColorChangeRate(RN::Color::Black()), _cameraTargetAmbientColorCompletedCallback(nullptr), _cameraTargetAmbientColorIsWaitingForLastFrame(false), _resetPositionAndRotation(true), _isFreeCameraActive(true)
 	{
 		RN::Dictionary *resolutionDictionary = RN::Settings::GetSharedInstance()->GetEntryForKey<RN::Dictionary>(RNCSTR("RNResolution"));
 		if(resolutionDictionary)
@@ -240,7 +240,9 @@ namespace PF
 
 	void CameraManager::MovePancakeCamera(float delta)
 	{
-		if(!_vrWindow && _headCamera && _headCamera->GetChildren()->GetCount() == 0)
+		if(!_isFreeCameraActive) return;
+		
+		if(!_vrWindow && _headCamera)
 		{
 			RN::InputManager *manager = RN::InputManager::GetSharedInstance();
 
@@ -391,5 +393,10 @@ namespace PF
 	{
 		ClearPipeline();
 		GeneratePipeline();
+	}
+
+	void CameraManager::SetFreeCamera(bool active)
+	{
+		_isFreeCameraActive = active;
 	}
 }

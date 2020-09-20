@@ -28,6 +28,8 @@ namespace PF
 
 		void SetCameraAmbientColor(const RN::Color &targetColor, float changeRate, std::function<void(void)> completed);
 		RN::SceneNode *GetHeadSceneNode() const;
+		
+		void SetFreeCamera(bool active);
 
 		RN::VRCamera *GetVRCamera() const { return _vrCamera; }
 		RN::Camera *GetHeadCamera() const { return _headCamera; }
@@ -64,6 +66,8 @@ namespace PF
 		bool _wantsPreviewCamera;
 		bool _wantsVRDebugWindow;
 		RN::uint8 _msaa;
+		
+		bool _isFreeCameraActive;
 		
 		bool _resetPositionAndRotation;
 	};

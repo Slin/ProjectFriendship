@@ -24,6 +24,7 @@ namespace PF
 		RN::SceneNode *_head;
 		RN::Entity *_bodyEntity;
 		RN::Model *_bodyModel;
+		float _headCameraTilt;
 		
 		RN::Vector3 _headPositionOffset;
 		
@@ -32,18 +33,9 @@ namespace PF
 		float _additionalBodyRotationAngle;
 		float _legGravity[4];
 		
-		RN::Vector3 _currentJumpDirection;
-		RN::Quaternion _jumpTargetRotation;
-		RN::Quaternion _jumpStartRotation;
-		bool _isJumping;
-		bool _wantsToJump;
-		float _jumpDistance;
-		float _currentJumpDistance;
-		
-		RN::Vector3 _previousTrackedHandPosition[2];
-		float _movementSpeed;
-		RN::uint32 _wasMovingFrame;
-		bool _isFirstFrame;
+		RN::Vector3 _currentSwimDirection;
+		bool _isSwimming;
+		bool _wantsToSwim;
 		
 /*		RN::Entity *_debugBox1;
 		RN::Entity *_debugBox2;*/
