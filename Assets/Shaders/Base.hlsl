@@ -143,14 +143,14 @@ FragmentVertex main_vertex(InputVertex vert)
 
 #if PF_FOG
 	result.fogDir = result.worldPosition - cameraPosition;
-	half correctionDistance = max(result.worldPosition.y + 2.0, 0.0);
+	half correctionDistance = max(result.worldPosition.y + 20.0, 0.0);
 	result.fogDir -= result.fogDir * (correctionDistance / result.fogDir.y);
 #endif
 
 #if PF_CAUSTICS
-	result.causticCoords.xy = result.worldPosition.xz * 0.1 + time * 0.01;
-	result.causticCoords.zw = -result.worldPosition.xz * 0.1 + time * 0.01;
-	result.causticBlend = saturate(vert.normal.y) * saturate(1.0 + vert.position.y);
+	result.causticCoords.xy = result.worldPosition.xz * 0.01 + time * 0.01;
+	result.causticCoords.zw = -result.worldPosition.xz * 0.01 + time * 0.01;
+	result.causticBlend = saturate(vert.normal.y) * saturate((200.0 + result.worldPosition.y)/200.0);
 #endif
 
 	result.position = mul(modelViewProjectionMatrix, position);
@@ -181,11 +181,11 @@ half4 main_fragment(FragmentVertex vert) : SV_TARGET
 	caustics += texture0.Sample(linearRepeatSampler, vert.causticCoords.zw).r;
 #endif
 #if PF_CAUSTICS
-	if(vert.worldPosition.y < -2.0) color += caustics * vert.causticBlend;
+	if(vert.worldPosition.y < -20.0) color += caustics * vert.causticBlend;
 #endif
 
 #if PF_FOG
-	half fogFactor = saturate(dot(vert.fogDir, vert.fogDir) * 0.0005);
+	half fogFactor = saturate(dot(vert.fogDir, vert.fogDir) * 0.000005);
 	color.rgb = lerp(color.rgb, half3(0.0, 0.1, 0.09), fogFactor);
 #endif
 

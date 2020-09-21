@@ -79,7 +79,7 @@ namespace PF
 		
 		_player = new Player();
 		AddNode(_player->Autorelease());
-		_player->SetWorldPosition(RN::Vector3(0.0f, -5.0f, 0.0f));
+		_player->SetWorldPosition(RN::Vector3(968.0f, -185.0f, -980.0f));
 		_cameraManager.SetFreeCamera(false);
 	}
 
@@ -310,7 +310,7 @@ namespace PF
 		
 		RN::Model *waterModel = AssignShader(RN::Model::WithName(RNCSTR("models/water.sgm")), Types::MaterialWater);
 		RN::Entity *waterEntity = new RN::Entity(waterModel);
-		waterEntity->SetWorldPosition(RN::Vector3(0.0f, -2.0f, 0.0f));
+		waterEntity->SetWorldPosition(RN::Vector3(0.0f, -20.0f, 0.0f));
 		waterEntity->SetFlags(RN::Entity::Flags::DrawLate);
 		AddLevelNode(waterEntity->Autorelease());
 	}

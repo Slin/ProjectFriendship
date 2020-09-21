@@ -11,7 +11,7 @@
 #define MAX_SPEED_CRAWLING 5.0f
 #define ORIGIN_TO_HEAD_OFFSET (_bodyEntity->GetScale()*RN::Vector3(0.0f, 0.0f, 0.0f))
 #define ORIGIN_TO_COLLISION_OFFSET (_bodyEntity->GetScale()*RN::Vector3(0.0f, -1.0f, 0.0f))
-#define LEG_LENGTH (_bodyEntity->GetScale().y*0.3f)
+#define LEG_LENGTH (_bodyEntity->GetScale().y*0.4f)
 #define HEAD_CAGE_SIZE 1.0f
 
 namespace PF
@@ -22,6 +22,10 @@ namespace PF
 	{
 		_head = new RN::SceneNode();
 		AddChild(_head->Autorelease());
+		
+		RN::PhysXMaterial *physicsMaterial = new RN::PhysXMaterial();
+		_characterController = new RN::PhysXKinematicController(0.2f, 0.01f, physicsMaterial->Autorelease(), 0.1f);
+		AddAttachment(_characterController->Autorelease());
 		
 		//Create the body entity
 		_bodyModel = RN::Model::WithName(RNCSTR("models/player.sgm"));
@@ -50,7 +54,7 @@ namespace PF
 			_headPositionOffset = headCamera->GetPosition();
 		}
 
-/*		RN::Mesh *box1Mesh = RN::Mesh::WithColoredCube(RN::Vector3(0.005f, 0.005f, 0.005f), RN::Color::WithRGBA(1.0f, 0.0f, 0.0f));
+		RN::Mesh *box1Mesh = RN::Mesh::WithColoredCube(RN::Vector3(0.01f, 0.05f, 0.05f), RN::Color::WithRGBA(1.0f, 0.0f, 0.0f));
 		RN::Material *boxMaterial = RN::Material::WithShaders(RN::Renderer::GetActiveRenderer()->GetDefaultShader(RN::Shader::Type::Vertex, RN::Shader::Options::WithMesh(box1Mesh)), RN::Renderer::GetActiveRenderer()->GetDefaultShader(RN::Shader::Type::Fragment, RN::Shader::Options::WithMesh(box1Mesh)));
 		RN::Model *box1Model = new RN::Model();
 		RN::Model::LODStage *box1LODStage = box1Model->AddLODStage(100000.0f);
@@ -58,12 +62,12 @@ namespace PF
 		_debugBox1 = new RN::Entity(box1Model->Autorelease());
 		World::GetSharedInstance()->AddLevelNode(_debugBox1->Autorelease());
 
-		RN::Mesh *box2Mesh = RN::Mesh::WithColoredCube(RN::Vector3(0.005f, 0.005f, 0.005f), RN::Color::WithRGBA(0.0f, 1.0f, 0.0f));
+		RN::Mesh *box2Mesh = RN::Mesh::WithColoredCube(RN::Vector3(0.01f, 0.05f, 0.05f), RN::Color::WithRGBA(0.0f, 1.0f, 0.0f));
 		RN::Model *box2Model = new RN::Model();
 		RN::Model::LODStage *box2LODStage = box2Model->AddLODStage(100000.0f);
 		box2LODStage->AddMesh(box2Mesh, boxMaterial);
 		_debugBox2 = new RN::Entity(box2Model->Autorelease());
-		World::GetSharedInstance()->AddLevelNode(_debugBox2->Autorelease());*/
+		World::GetSharedInstance()->AddLevelNode(_debugBox2->Autorelease());
 
 		//_bodyEntity->AddFlags(RN::SceneNode::Flags::Hidden);
 	}
@@ -107,6 +111,12 @@ namespace PF
 		{
 			RN::InputManager *inputManager = RN::InputManager::GetSharedInstance();
 			handController[0].thumbstick = RN::Vector2(inputManager->IsControlToggling(RNCSTR("D")) - inputManager->IsControlToggling(RNCSTR("A")), inputManager->IsControlToggling(RNCSTR("W")) - inputManager->IsControlToggling(RNCSTR("S")));
+			
+			if(inputManager->IsControlToggling(RNCSTR("SPACE")) && !_isSwimming)
+			{
+				_currentSwimDirection = _head->GetUp() * 5.0f;
+				_wantsToSwim = true;
+			}
 		}
 		
 		RN::Quaternion baseRotationWithoutYaw = GetWorldRotation() * RN::Quaternion(RN::Vector3(-_snapRotationAngle-_additionalBodyRotationAngle, 0.0f, 0.0f));
@@ -183,12 +193,32 @@ namespace PF
 			else
 			{
 				//Handle swimming
-				
 				RN::Vector3 swimInput;
 				if(!vrCamera)
 				{
-					swimInput = headCamera->GetForward() * handController[0].thumbstick.y;
-					swimInput += headCamera->GetRight() * handController[0].thumbstick.x;
+					swimInput = headCamera->GetForward() * handController[0].thumbstick.y * 3.0f;
+					swimInput += headCamera->GetRight() * handController[0].thumbstick.x * 3.0f;
+				}
+				else
+				{
+					RN::Vector3 leftHandDirection = handController[0].position - _previousHandPosition[0];
+					RN::Vector3 rightHandDirection = handController[1].position - _previousHandPosition[1];
+					
+					RN::Vector3 leftHandAngleDirection = handController[0].rotation.GetRotatedVector(RN::Vector3(-1.0f, 0.0f, 0.0f));
+					RN::Vector3 rightHandAngleDirection = handController[1].rotation.GetRotatedVector(RN::Vector3(1.0f, 0.0f, 0.0f));
+					
+					if(handController[0].handTrigger > 0.3f)
+					{
+						leftHandAngleDirection = RN::Vector3();
+					}
+					if(handController[1].handTrigger > 0.3f)
+					{
+						rightHandAngleDirection = RN::Vector3();
+					}
+					
+					swimInput = leftHandDirection * leftHandAngleDirection.GetDotProduct(leftHandDirection.GetNormalized()) + rightHandDirection * rightHandAngleDirection.GetDotProduct(rightHandDirection.GetNormalized());
+					
+					swimInput *= 200.0f;
 				}
 				_currentSwimDirection += swimInput * delta;
 				
@@ -204,7 +234,18 @@ namespace PF
 			_wantsToSwim = true;
 		}
 		
-		Translate(globalMovement);
+		_previousHandPosition[0] = handController[0].position;
+		_previousHandPosition[1] = handController[1].position;
+		
+		float targetHeight = (_head->GetWorldPosition() + globalMovement).y;
+		if(targetHeight > -20.5f && globalMovement.y > RN::k::EpsilonFloat)
+		{
+			globalMovement -= globalMovement.GetNormalized() * (targetHeight + 20.5f) / globalMovement.GetNormalized().y;
+			_currentSwimDirection = RN::Vector3();
+		}
+		
+		//Translate(globalMovement);
+		_characterController->Move(globalMovement, delta);
 		
 		//Rotation
 		RN::Vector3 worldCameraPosition = GetWorldPosition() + GetWorldRotation().GetRotatedVector(ORIGIN_TO_HEAD_OFFSET + RN::Quaternion(RN::Vector3(-_additionalBodyRotationAngle, 0.0f, 0.0f)).GetRotatedVector(localHeadToCameraPosition));
@@ -344,7 +385,8 @@ namespace PF
 			RN::Vector3 targetPosition = averageFeetPosition + targetNormal.GetNormalized(LEG_LENGTH);
 			
 			RN::Vector3 gravity = targetPosition - traceStartPosition;
-			Translate(gravity);
+			//Translate(gravity);
+			_characterController->Move(gravity, delta);
 			
 			SetWorldRotation(targetRotation);
 		}
@@ -354,6 +396,11 @@ namespace PF
 		{
 			vrCamera->SetWorldRotation(GetWorldRotation() * RN::Quaternion(RN::Vector3(-_additionalBodyRotationAngle, 0.0f, 0.0f)));
 			vrCamera->SetWorldPosition(worldCameraPosition - vrCamera->GetWorldRotation().GetRotatedVector(vrCamera->GetHead()->GetPosition()));
+			
+			_debugBox1->SetWorldPosition(vrCamera->GetWorldPosition() + baseRotationWithoutYaw.GetRotatedVector(handController[0].position));
+			_debugBox2->SetWorldPosition(vrCamera->GetWorldPosition() + baseRotationWithoutYaw.GetRotatedVector(handController[1].position));
+			_debugBox1->SetWorldRotation(baseRotationWithoutYaw * handController[0].rotation);
+			_debugBox2->SetWorldRotation(baseRotationWithoutYaw * handController[1].rotation);
 		}
 		else
 		{
@@ -361,7 +408,7 @@ namespace PF
 			headCamera->Rotate(RN::Vector3(0.0f, _headCameraTilt, 0.0f));
 			headCamera->SetWorldPosition(worldCameraPosition);
 		}
-		
+
 		SceneNode::Update(delta);
 	}
 }

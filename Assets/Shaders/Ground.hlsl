@@ -51,11 +51,11 @@ FragmentVertex ground_vertex(InputVertex vert)
 
 	result.worldPosition = mul(modelMatrix, float4(vert.position, 1.0)).xyz;
 	result.detailCoords = result.worldPosition.xz * 1.0;
-	result.causticCoords.xy = result.worldPosition.xz * 0.1 + time * 0.01;
-	result.causticCoords.zw = -result.worldPosition.xz * 0.1 + time * 0.01;
-	result.causticBlend = saturate(vert.normal.y) * saturate((20.0 + result.worldPosition.y)/20.0);
+	result.causticCoords.xy = result.worldPosition.xz * 0.01 + time * 0.01;
+	result.causticCoords.zw = -result.worldPosition.xz * 0.01 + time * 0.01;
+	result.causticBlend = saturate(vert.normal.y) * saturate((200.0 + result.worldPosition.y)/200.0);
 
-	if(result.worldPosition.y > -2.0) result.causticBlend = 0.0;
+	if(result.worldPosition.y > -20.0) result.causticBlend = 0.0;
 
 	result.color = vert.color * diffuseColor * ambientColor * light;
 
@@ -74,7 +74,7 @@ half4 ground_fragment(FragmentVertex vert) : SV_TARGET
 	color += caustics * vert.causticBlend;
 
 	half3 cameraDir = vert.worldPosition - cameraPosition;
-	half fogFactor = saturate(dot(cameraDir, cameraDir) * 0.0005);
+	half fogFactor = saturate(dot(cameraDir, cameraDir) * 0.000005);
 
 	color.rgb = lerp(color.rgb, half3(0.0, 0.1, 0.09), fogFactor);
 

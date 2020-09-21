@@ -58,7 +58,7 @@ half4 water_fragment(FragmentVertex vert) : SV_TARGET
 	//color *= texture0.Sample(linearRepeatSampler, vert.detailCoords).rgba;
 
 	half3 cameraDir = vert.worldPosition - cameraPosition;
-	half fogFactor = saturate(dot(cameraDir, cameraDir) * 0.0005);
+	half fogFactor = saturate(dot(cameraDir, cameraDir) * 0.000005);
 
 	color.rgb = lerp(color.rgb, half3(0.0, 0.1, 0.09), fogFactor);
 

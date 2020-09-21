@@ -9,6 +9,7 @@
 #define __PF_PLAYER_H_
 
 #include "Rayne.h"
+#include "RNPhysXWorld.h"
 
 namespace PF
 {
@@ -36,9 +37,12 @@ namespace PF
 		RN::Vector3 _currentSwimDirection;
 		bool _isSwimming;
 		bool _wantsToSwim;
+		RN::Vector3 _previousHandPosition[2];
 		
-/*		RN::Entity *_debugBox1;
-		RN::Entity *_debugBox2;*/
+		RN::Entity *_debugBox1;
+		RN::Entity *_debugBox2;
+		
+		RN::PhysXKinematicController *_characterController;
 
 		RNDeclareMeta(Player)
 	};
