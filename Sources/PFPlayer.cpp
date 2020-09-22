@@ -8,7 +8,7 @@
 #include "PFPlayer.h"
 #include "PFWorld.h"
 
-#define MAX_SPEED_CRAWLING 5.0f
+#define MAX_SPEED_CRAWLING 10.0f
 #define ORIGIN_TO_HEAD_OFFSET (_bodyEntity->GetScale()*RN::Vector3(0.0f, 0.0f, 0.0f))
 #define ORIGIN_TO_COLLISION_OFFSET (_bodyEntity->GetScale()*RN::Vector3(0.0f, -1.0f, 0.0f))
 #define LEG_LENGTH (_bodyEntity->GetScale().y*0.4f)
@@ -246,7 +246,7 @@ namespace PF
 				
 				globalMovement = _currentSwimDirection * delta;
 				
-				_currentSwimDirection -= _currentSwimDirection * std::min(delta, 1.0f);
+				_currentSwimDirection -= _currentSwimDirection * std::min(delta * 0.3f, 1.0f);
 			}
 		}
 		else
