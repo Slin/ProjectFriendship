@@ -45,8 +45,6 @@ namespace PF
 			_vrWindow = vrWindow->Retain();
 		
 		_levelNodes = new RN::Array();
-		
-		_cameraManager.Setup(vrWindow);
 	}
 
 	World::~World()
@@ -62,6 +60,7 @@ namespace PF
 		{
 			RN::Renderer *activeRenderer = RN::Renderer::GetActiveRenderer();
 			_shaderLibrary = activeRenderer->CreateShaderLibraryWithFile(RNCSTR("shaders/Shaders.json"));
+			_cameraManager.Setup(_vrWindow);
 		}
 
 		RN::String *pvdServerIP = nullptr;

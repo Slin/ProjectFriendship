@@ -77,6 +77,7 @@ half4 ground_fragment(FragmentVertex vert) : SV_TARGET
 	half fogFactor = saturate(dot(cameraDir, cameraDir) * 0.000005);
 
 	color.rgb = lerp(color.rgb, half3(0.0, 0.1, 0.09), fogFactor);
+	color.a = 1.0;
 
 	return color * cameraAmbientColor;
 }

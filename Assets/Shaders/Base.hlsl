@@ -34,7 +34,7 @@
 [[vk::binding(4)]] Texture2D texture0 : register(t0);
 
 #if RN_UV0 && PF_CAUSTICS
-	[[vk::binding(5)]] Texture2D texture1 : register(t0);
+	[[vk::binding(5)]] Texture2D texture1 : register(t1);
 #endif
 #endif
 
@@ -190,5 +190,6 @@ half4 main_fragment(FragmentVertex vert) : SV_TARGET
 #endif
 
 	color.rgb *= cameraAmbientColor.rgb;
+	color.a = 1.0;
 	return color;
 }
