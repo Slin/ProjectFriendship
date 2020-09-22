@@ -69,7 +69,7 @@ namespace PF
 		_debugBox2 = new RN::Entity(box2Model->Autorelease());
 		World::GetSharedInstance()->AddLevelNode(_debugBox2->Autorelease());
 
-		//_bodyEntity->AddFlags(RN::SceneNode::Flags::Hidden);
+		_bodyEntity->AddFlags(RN::SceneNode::Flags::Hidden);
 	}
 	
 	Player::~Player()
@@ -176,8 +176,6 @@ namespace PF
 				
 				_wantsToSwim = false;
 				_isSwimming = true;
-				
-				
 			}
 			
 			//Crawling with thumbstick
@@ -198,31 +196,57 @@ namespace PF
 				{
 					swimInput = headCamera->GetForward() * handController[0].thumbstick.y * 3.0f;
 					swimInput += headCamera->GetRight() * handController[0].thumbstick.x * 3.0f;
+					swimInput *= delta;
 				}
 				else
 				{
-					RN::Vector3 leftHandDirection = handController[0].position - _previousHandPosition[0];
-					RN::Vector3 rightHandDirection = handController[1].position - _previousHandPosition[1];
+					RN::Vector3 leftHandPosition = vrCamera->GetWorldPosition() + baseRotationWithoutYaw.GetRotatedVector(handController[0].position);
+					RN::Vector3 rightHandPosition = vrCamera->GetWorldPosition() + baseRotationWithoutYaw.GetRotatedVector(handController[1].position);
 					
-					RN::Vector3 leftHandAngleDirection = handController[0].rotation.GetRotatedVector(RN::Vector3(-1.0f, 0.0f, 0.0f));
-					RN::Vector3 rightHandAngleDirection = handController[1].rotation.GetRotatedVector(RN::Vector3(1.0f, 0.0f, 0.0f));
+					RN::Vector3 leftHandDirection = baseRotationWithoutYaw.GetRotatedVector(_previousHandPosition[0] - handController[0].position);
+					RN::Vector3 rightHandDirection = baseRotationWithoutYaw.GetRotatedVector(_previousHandPosition[1] - handController[1].position);
 					
-					if(handController[0].handTrigger > 0.3f)
-					{
-						leftHandAngleDirection = RN::Vector3();
-					}
-					if(handController[1].handTrigger > 0.3f)
-					{
-						rightHandAngleDirection = RN::Vector3();
-					}
+					RN::Vector3 leftHandAngleDirection = (baseRotationWithoutYaw*handController[0].rotation).GetRotatedVector(RN::Vector3(-1.0f, 0.0f, 0.0f));
+					RN::Vector3 rightHandAngleDirection = (baseRotationWithoutYaw*handController[1].rotation).GetRotatedVector(RN::Vector3(1.0f, 0.0f, 0.0f));
 					
-					swimInput = leftHandDirection * leftHandAngleDirection.GetDotProduct(leftHandDirection.GetNormalized()) + rightHandDirection * rightHandAngleDirection.GetDotProduct(rightHandDirection.GetNormalized());
+					leftHandDirection *= std::max(leftHandAngleDirection.GetDotProduct(leftHandDirection.GetNormalized()), 0.0f);
+					rightHandDirection *= std::max(rightHandAngleDirection.GetDotProduct(rightHandDirection.GetNormalized()), 0.0f);
 					
-					swimInput *= 200.0f;
+					
+					RN::Vector3 leftHandToHeadDirection = leftHandPosition - _head->GetWorldPosition();
+					RN::Vector3 rightHandToHeadDirection = rightHandPosition - _head->GetWorldPosition();
+					RN::Quaternion leftHandLookAtRotationCurrent = RN::Quaternion::WithLookAt(leftHandToHeadDirection, _head->GetUp());
+					RN::Quaternion rightHandLookAtRotationCurrent = RN::Quaternion::WithLookAt(rightHandToHeadDirection, _head->GetUp());
+					
+					RN::Quaternion leftHandLookAtRotationPrevious = RN::Quaternion::WithLookAt(leftHandToHeadDirection - leftHandDirection, _head->GetUp());
+					RN::Quaternion rightHandLookAtRotationPrevious = RN::Quaternion::WithLookAt(rightHandToHeadDirection - rightHandDirection, _head->GetUp());
+					
+					RN::Quaternion leftHandRotationDiff = leftHandLookAtRotationCurrent * leftHandLookAtRotationPrevious.GetConjugated();
+					RN::Quaternion rightHandRotationDiff = rightHandLookAtRotationCurrent * rightHandLookAtRotationPrevious.GetConjugated();
+					
+					RN::Quaternion combinedRotation = leftHandRotationDiff * rightHandRotationDiff;
+					
+					//RN::Vector3 rotationAngle = combinedRotation.GetEulerAngle();
+					//RNDebug("rotation: " << rotationAngle.x << ", " << rotationAngle.y << ", " << rotationAngle.z);
+					
+					_currentSwimRotation += combinedRotation.GetEulerAngle() / std::max(delta, RN::k::EpsilonFloat) * 0.03f;
+					
+					baseRotationWithoutYaw = RN::Quaternion(_currentSwimRotation*delta) * baseRotationWithoutYaw;
+					
+					_currentSwimRotation -= _currentSwimRotation * std::min(10.0f * delta, 1.0f);
+					
+					//leftHandDirection *= _head->GetForward().GetDotProduct(leftHandDirection.GetNormalized());
+					//rightHandDirection *= _head->GetForward().GetDotProduct(rightHandDirection.GetNormalized());
+					
+					swimInput = (leftHandDirection + rightHandDirection) / std::max(delta, RN::k::EpsilonFloat) * 0.1f;
+					
+					//swimInput *= 200.0f;
 				}
-				_currentSwimDirection += swimInput * delta;
+				_currentSwimDirection += swimInput;
 				
 				globalMovement = _currentSwimDirection * delta;
+				
+				_currentSwimDirection -= _currentSwimDirection * std::min(delta, 1.0f);
 			}
 		}
 		else
@@ -317,6 +341,7 @@ namespace PF
 			}
 		}
 		
+		bool wasSwimming = _isSwimming;
 		if(closeEnoughCounter >= 3)
 		{
 			_isSwimming = false;
@@ -364,7 +389,7 @@ namespace PF
 			}
 		}
 			
-		if(isCrawling)
+		if(isCrawling || (wasSwimming && !_isSwimming))
 		{
 			RN::Vector3 targetNormal = leftRightDirection.GetCrossProduct(backFrontDirection).GetNormalized();
 			

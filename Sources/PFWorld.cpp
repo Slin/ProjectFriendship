@@ -79,7 +79,7 @@ namespace PF
 		
 		_player = new Player();
 		AddNode(_player->Autorelease());
-		_player->SetWorldPosition(RN::Vector3(968.0f, -185.0f, -980.0f));
+		_player->SetWorldPosition(RN::Vector3(968.0f, -200.0f, -980.0f));
 		_cameraManager.SetFreeCamera(false);
 	}
 

@@ -35,6 +35,7 @@ namespace PF
 		float _legGravity[4];
 		
 		RN::Vector3 _currentSwimDirection;
+		RN::Vector3 _currentSwimRotation;
 		bool _isSwimming;
 		bool _wantsToSwim;
 		RN::Vector3 _previousHandPosition[2];
