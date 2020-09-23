@@ -15,6 +15,7 @@
 #include "PFTypes.h"
 #include "PFCameraManager.h"
 #include "PFPlayer.h"
+#include "PFGoldfish.h"
 
 namespace PF
 {

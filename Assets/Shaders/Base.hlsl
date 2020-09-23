@@ -155,9 +155,9 @@ FragmentVertex main_vertex(InputVertex vert)
 
 	result.position = mul(modelViewProjectionMatrix, position);
 
-	half light = normal.y * 0.5 + 1.5;
+	half light = normal.y + 1.5;
 #if RN_COLOR
-	result.color = vert.color * diffuseColor * ambientColor * light;
+	result.color = vert.color * vert.color * diffuseColor * ambientColor * light;
 #else
 	result.color = diffuseColor * ambientColor * light;
 #endif

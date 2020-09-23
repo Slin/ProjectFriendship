@@ -130,7 +130,6 @@ namespace PF
 					material->SetDepthWriteEnabled(true);
 					material->SetDepthMode(RN::DepthMode::LessOrEqual);
 					material->SetAlphaToCoverage(false);
-					material->SetCullMode(RN::CullMode::None);
 					material->SetAmbientColor(RN::Color::White());
 					RN::Shader::Options *shaderOptions = RN::Shader::Options::WithMesh(lodStage->GetMeshAtIndex(i));
 					shaderOptions->AddDefine(RNCSTR("PF_FOG"), RNCSTR("1"));
@@ -306,6 +305,19 @@ namespace PF
 		RN::PhysXStaticBody *waterlilyBody = RN::PhysXStaticBody::WithShape(waterlilyShape);
 		waterlilyBody->SetCollisionFilter(Types::CollisionLevel, Types::CollisionAll);
 		lilysEntity->AddAttachment(waterlilyBody);
+		
+		RN::Model *goldfishModel = AssignShader(RN::Model::WithName(RNCSTR("models/goldfish.sgm")), Types::MaterialDefault);
+		Goldfish *goldfishEntity = new Goldfish(goldfishModel);
+		AddLevelNode(goldfishEntity->Autorelease());
+		goldfishEntity->SetWorldPosition(RN::Vector3(616.16, -200.0, 304.364));
+		
+		goldfishEntity = new Goldfish(goldfishModel);
+		AddLevelNode(goldfishEntity->Autorelease());
+		goldfishEntity->SetWorldPosition(RN::Vector3(583.476, -100.0, 1074.92));
+		
+		goldfishEntity = new Goldfish(goldfishModel);
+		AddLevelNode(goldfishEntity->Autorelease());
+		goldfishEntity->SetWorldPosition(RN::Vector3(-522.7, -150.0, -728.885));
 		
 		RN::Model *waterModel = AssignShader(RN::Model::WithName(RNCSTR("models/water.sgm")), Types::MaterialWater);
 		RN::Entity *waterEntity = new RN::Entity(waterModel);

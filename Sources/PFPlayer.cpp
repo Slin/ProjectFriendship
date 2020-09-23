@@ -194,8 +194,8 @@ namespace PF
 				RN::Vector3 swimInput;
 				if(!vrCamera)
 				{
-					swimInput = headCamera->GetForward() * handController[0].thumbstick.y * 3.0f;
-					swimInput += headCamera->GetRight() * handController[0].thumbstick.x * 3.0f;
+					swimInput = headCamera->GetForward() * handController[0].thumbstick.y * 10.0f;
+					swimInput += headCamera->GetRight() * handController[0].thumbstick.x * 10.0f;
 					swimInput *= delta;
 				}
 				else

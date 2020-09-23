@@ -74,14 +74,16 @@ set(SOURCES
 	Sources/PFCameraManager.cpp
 	Sources/PFWorld.cpp
 	Sources/PFTypes.cpp
-	Sources/PFPlayer.cpp)
+	Sources/PFPlayer.cpp
+	Sources/PFGoldfish.cpp)
 
 set(HEADERS
 	Sources/PFApplication.h
 	Sources/PFCameraManager.h
 	Sources/PFWorld.h
 	Sources/PFTypes.h
-	Sources/PFPlayer.h)
+	Sources/PFPlayer.h
+	Sources/PFGoldfish.h)
 
 set(RESOURCES
 	manifest.json
