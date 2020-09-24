@@ -41,14 +41,16 @@ FragmentVertex air_vertex(InputVertex vert)
 	result.position = mul(modelViewProjectionMatrix, float4(vert.position, 1.0));
 	half3 worldPosition = mul(modelMatrix, float4(vert.position, 1.0)).xyz;
 
-	result.fogDir = worldPosition - cameraPosition;
+	half3 cameraDir = worldPosition - cameraPosition;
+	result.fogDir = cameraDir;
 	half correctionDistance = max(worldPosition.y + 20.0, 0.0);
 	result.fogDir -= result.fogDir * (correctionDistance / result.fogDir.y);
 
 	float3 worldNormal = normalize(mul(modelMatrix, float4(vert.normal, 0.0)).xyz);
 	half light = worldNormal.y + 1.5;
-	result.color = diffuseColor * ambientColor;
-	result.color.rgb *= light;
+	result.color.rgb = diffuseColor.rgb * ambientColor.rgb * light;
+	result.color.a = saturate(1.0 + dot(worldNormal, normalize(cameraDir)));
+	result.color.a *= result.color.a * 0.5;
 
 	return result;
 }
