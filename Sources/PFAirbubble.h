@@ -23,7 +23,6 @@ namespace PF
 		
 	private:
 		RN::Entity *_floatingBubbleEntity;
-		RN::Vector3 _previousPosition;
 		float _movementTimer;
 		
 		RN::PhysXDynamicBody *_physicsBody;

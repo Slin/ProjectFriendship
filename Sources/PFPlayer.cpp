@@ -300,7 +300,7 @@ namespace PF
 		}
 		
 		RN::Vector3 gravity;
-		const RN::PhysXContactInfo &gravityContact = physicsWorld->CastRay(GetWorldPosition(), GetWorldPosition() - GetUp() * 100.0f, Types::CollisionPlayerMask);
+		const RN::PhysXContactInfo &gravityContact = physicsWorld->CastRay(GetWorldPosition(), GetWorldPosition() - GetUp() * 100.0f, Types::CollisionGravityMask);
 		if(gravityContact.distance >= 0.0f)
 		{
 			if(vrCamera)
@@ -393,6 +393,8 @@ namespace PF
 			_airBubbleSize = 0.5f;
 			_airBubbleEntity->SetScale(RN::Vector3(_airBubbleSize, _airBubbleSize, _airBubbleSize));
 		}
+		
+		_bodyEntity->SetWorldRotation(RN::Vector3(_head->GetWorldEulerAngle().x, 0.0f, 0.0f));
 
 		SceneNode::Update(delta);
 	}

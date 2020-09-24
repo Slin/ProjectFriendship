@@ -25,8 +25,6 @@ namespace PF
 		_physicsBody->SetCollisionFilter(Types::CollisionAirbubble, Types::CollisionAll);
 		_physicsBody->SetEnableCCD(true);
 		AddAttachment(_physicsBody);
-		
-		_previousPosition = GetWorldPosition();
 	}
 	
 	Airbubble::~Airbubble()
@@ -46,12 +44,11 @@ namespace PF
 			_physicsBody->ApplyForce(RN::Vector3(0.0f, 15.0f, 0.0f));
 			_movementTimer += delta;
 			
-			if(GetWorldPosition().GetSquaredDistance(_previousPosition) < 0.1f && _movementTimer > 5.0f)
+			if(_physicsBody->GetLinearVelocity().GetLength() < 0.1f && _movementTimer > 2.0f)
 			{
 				RemoveAttachment(_physicsBody);
 				_physicsBody = nullptr;
 			}
-			_previousPosition = GetWorldPosition();
 		}
 		
 		if(GetWorldPosition().y > -20.0f)

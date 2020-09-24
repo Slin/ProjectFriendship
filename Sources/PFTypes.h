@@ -17,12 +17,14 @@ namespace PF
 		enum CollisionType
 		{
 			CollisionLevel = 1 << 0,
-			CollisionThread = 1 << 1,
-			CollisionAirbubble = 1 << 2,
-			CollisionPlayer = 1 << 3,
+			CollisionPlants = 1 << 1,
+			CollisionThread = 1 << 2,
+			CollisionAirbubble = 1 << 3,
+			CollisionPlayer = 1 << 4,
 
 			CollisionAll = 0xffffffff,
-			CollisionPlayerMask = CollisionLevel|CollisionThread
+			CollisionPlayerMask = CollisionLevel|CollisionPlants,
+			CollisionGravityMask = CollisionLevel
 		};
 		
 		enum MaterialType

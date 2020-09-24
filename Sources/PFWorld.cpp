@@ -290,7 +290,7 @@ namespace PF
 		
 		RN::PhysXCompoundShape *reedShape = RN::PhysXCompoundShape::WithModel(reedModel, levelPhysicsMaterial->Autorelease(), true, true);
 		RN::PhysXStaticBody *reedBody = RN::PhysXStaticBody::WithShape(reedShape);
-		reedBody->SetCollisionFilter(Types::CollisionLevel, Types::CollisionAll);
+		reedBody->SetCollisionFilter(Types::CollisionPlants, Types::CollisionAll);
 		reedEntity->AddAttachment(reedBody);
 		
 		RN::Model *stonesModel = AssignShader(RN::Model::WithName(RNCSTR("models/stones.sgm")), Types::MaterialDefault);
@@ -308,7 +308,7 @@ namespace PF
 		
 		RN::PhysXCompoundShape *grassShape = RN::PhysXCompoundShape::WithModel(grassModel, levelPhysicsMaterial->Autorelease(), true, true);
 		RN::PhysXStaticBody *grassBody = RN::PhysXStaticBody::WithShape(grassShape);
-		grassBody->SetCollisionFilter(Types::CollisionLevel, Types::CollisionAll);
+		grassBody->SetCollisionFilter(Types::CollisionPlants, Types::CollisionAll);
 		grassEntity->AddAttachment(grassBody);
 		
 		RN::Model *lilysModel = AssignShader(RN::Model::WithName(RNCSTR("models/waterlily.sgm")), Types::MaterialMoving);
@@ -317,7 +317,7 @@ namespace PF
 		
 		RN::PhysXCompoundShape *waterlilyShape = RN::PhysXCompoundShape::WithModel(lilysModel, levelPhysicsMaterial->Autorelease(), true, true);
 		RN::PhysXStaticBody *waterlilyBody = RN::PhysXStaticBody::WithShape(waterlilyShape);
-		waterlilyBody->SetCollisionFilter(Types::CollisionLevel, Types::CollisionAll);
+		waterlilyBody->SetCollisionFilter(Types::CollisionPlants, Types::CollisionAll);
 		lilysEntity->AddAttachment(waterlilyBody);
 		
 		RN::Model *goldfishModel = AssignShader(RN::Model::WithName(RNCSTR("models/goldfish.sgm")), Types::MaterialDefault);
