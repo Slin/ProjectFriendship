@@ -18,7 +18,7 @@ namespace PF
 {
 	RNDefineMeta(Player, RN::SceneNode)
 
-	Player::Player() : _rotateTimer(0.0f), _isSwimming(true), _headCameraTilt(0.0f), _snapRotationAngle(0.0f), _activeThread{nullptr, nullptr}, _airBubbleSize(2.0f)
+	Player::Player() : _rotateTimer(0.0f), _isSwimming(true), _headCameraTilt(0.0f), _snapRotationAngle(0.0f), _activeThread{nullptr, nullptr}, _airBubbleSize(1.0f)
 	{
 		_head = new RN::SceneNode();
 		AddChild(_head->Autorelease());
@@ -37,11 +37,11 @@ namespace PF
 		//_bodyEntity->SetScale(RN::Vector3(20.0f, 20.0f, 20.0f));
 		//_bodyEntity->GetModel()->GetSkeleton()->SetAnimation(RNCSTR("walk_fixed"));
 		
-		_airBubbleEntity = new RN::Entity(World::GetSharedInstance()->AssignShader(RN::Model::WithName(RNCSTR("models/airbubble.sgm")), Types::MaterialAirbubble));
+		_airBubbleEntity = new RN::Entity(World::GetSharedInstance()->AssignShader(RN::Model::WithName(RNCSTR("models/airbubble.sgm")), Types::MaterialDefault));
 		AddChild(_airBubbleEntity->Autorelease());
 		_airBubbleEntity->SetPosition(RN::Vector3(0.0f, -0.8f, 0.3f));
 		_airBubbleEntity->AddFlags(RN::Entity::Flags::DrawLate);
-		_airBubbleEntity->SetScale(_airBubbleSize);
+		_airBubbleEntity->SetScale(RN::Vector3(_airBubbleSize, _airBubbleSize, _airBubbleSize));
 		
 		World *world = World::GetSharedInstance();
 		RN::VRCamera *vrCamera = world->GetVRCamera();
@@ -258,17 +258,17 @@ namespace PF
 				
 				_currentSwimDirection -= _currentSwimDirection * std::min(delta * 0.3f, 1.0f);
 				
-				if(swimInput.y > RN::k::EpsilonFloat && _head->GetWorldPosition().y > -20.0f)
+				if(swimInput.y > RN::k::EpsilonFloat && _head->GetWorldPosition().y > -21.0f)
 				{
 					_airBubbleSize += swimInput.y * delta;
-					_airBubbleSize = std::min(_airBubbleSize, 2.0f);
+					_airBubbleSize = std::min(_airBubbleSize, 1.3f);
 					
-					_airBubbleEntity->SetScale(_airBubbleSize);
+					_airBubbleEntity->SetScale(RN::Vector3(_airBubbleSize, _airBubbleSize, _airBubbleSize));
 				}
 				
 				if(!isPulling)
 				{
-					_currentSwimDirection.y += _airBubbleSize * delta;
+					_currentSwimDirection.y += (_airBubbleSize - 0.5f) * delta * 10.0f;
 				}
 			}
 		}
@@ -385,8 +385,8 @@ namespace PF
 		
 		if(handController[0].button[RN::VRControllerTrackingState::BY])
 		{
-			_airBubbleSize = 0.0f;
-			_airBubbleEntity->SetScale(_airBubbleSize);
+			_airBubbleSize = 0.5f;
+			_airBubbleEntity->SetScale(RN::Vector3(_airBubbleSize, _airBubbleSize, _airBubbleSize));
 		}
 
 		SceneNode::Update(delta);
