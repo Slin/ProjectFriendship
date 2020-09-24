@@ -25,6 +25,7 @@ namespace PF
 		void ResetThread(Thread *thread);
 		
 	private:
+		bool _isFirstFrame;
 		RN::SceneNode *_head;
 		RN::Entity *_bodyEntity;
 		RN::Model *_bodyModel;

@@ -18,7 +18,7 @@ namespace PF
 {
 	RNDefineMeta(Player, RN::SceneNode)
 
-	Player::Player() : _rotateTimer(0.0f), _isSwimming(true), _headCameraTilt(0.0f), _snapRotationAngle(0.0f), _activeThread{nullptr, nullptr}, _airBubbleSize(1.0f)
+	Player::Player() : _isFirstFrame(true), _rotateTimer(0.0f), _isSwimming(true), _headCameraTilt(0.0f), _snapRotationAngle(0.0f), _activeThread{nullptr, nullptr}, _airBubbleSize(1.0f)
 	{
 		_head = new RN::SceneNode();
 		AddChild(_head->Autorelease());
@@ -39,7 +39,7 @@ namespace PF
 		//_bodyEntity->GetModel()->GetSkeleton()->SetAnimation(RNCSTR("walk_fixed"));
 		
 		_airBubbleEntity = new RN::Entity(World::GetSharedInstance()->AssignShader(RN::Model::WithName(RNCSTR("models/airbubble.sgm")), Types::MaterialAirbubble));
-		AddChild(_airBubbleEntity->Autorelease());
+		_bodyEntity->AddChild(_airBubbleEntity->Autorelease());
 		_airBubbleEntity->SetPosition(RN::Vector3(0.0f, -0.8f, 0.3f));
 		_airBubbleEntity->AddFlags(RN::Entity::Flags::DrawLate);
 		_airBubbleEntity->SetScale(RN::Vector3(_airBubbleSize, _airBubbleSize, _airBubbleSize));
@@ -123,6 +123,7 @@ namespace PF
 		
 		RN::Quaternion baseRotationWithoutYaw = GetWorldRotation() * RN::Quaternion(RN::Vector3(-_snapRotationAngle, 0.0f, 0.0f));
 		
+		bool didSnapTurn = false;
 		//Always snap turn for now
 		if(!vrCamera)
 		{
@@ -143,6 +144,7 @@ namespace PF
 						float sign = handController[1].thumbstick.x > 0.0 ? -1.0 : 1.0;
 						_snapRotationAngle += 45.0f * sign;
 						_rotateTimer = 0.25f;
+						didSnapTurn = true;
 					}
 				}
 				else
@@ -166,6 +168,13 @@ namespace PF
 		handController[1].rotation = cameraSnapRotation*handController[1].rotation * RN::Vector3(0.0f, -45.0f, 0.0f);
 		handController[1].position = cameraSnapRotation.GetRotatedVector(handController[1].position);
 		//handController[1].velocityLinear = cameraSnapRotation.GetRotatedVector(handController[1].velocityLinear);
+		
+		if(_isFirstFrame || didSnapTurn)
+		{
+			_previousHandPosition[0] = handController[0].position;
+			_previousHandPosition[1] = handController[1].position;
+			_isFirstFrame = false;
+		}
 		
 		//Movement
 		bool isCrawling = false;
@@ -246,11 +255,6 @@ namespace PF
 					{
 						swimInput += (_activeThread[1]->GetWorldPosition() - leftHandPosition).GetNormalized(delta * 8.0f);
 						isPulling = true;
-					}
-					
-					if(handController[1].button[RN::VRControllerTrackingState::Stick])
-					{
-						baseRotationWithoutYaw = RN::Quaternion::WithLookAt(baseRotationWithoutYaw.GetRotatedVector(RN::Vector3(0.0f, 0.0f, -1.0f)), RN::Vector3(0.0f, 1.0f, 0.0f), true);
 					}
 				}
 				_currentSwimDirection += swimInput;
