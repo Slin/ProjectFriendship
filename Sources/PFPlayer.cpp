@@ -257,6 +257,11 @@ namespace PF
 						swimInput += (_activeThread[1]->GetWorldPosition() - leftHandPosition).GetNormalized(delta * 8.0f);
 					}
 					
+					if(handController[1].button[RN::VRControllerTrackingState::Stick])
+					{
+						baseRotationWithoutYaw = RN::Quaternion::WithLookAt(baseRotationWithoutYaw.GetRotatedVector(RN::Vector3(0.0f, 0.0f, -1.0f)), RN::Vector3(0.0f, 1.0f, 0.0f), true);
+					}
+					
 					//swimInput *= 200.0f;
 				}
 				_currentSwimDirection += swimInput;
