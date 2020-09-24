@@ -1,33 +1,35 @@
 //
-//  PFGoldfish.h
+//  PFAirbubble.h
 //  ProjectFriendship
 //
 //  Copyright 2020 by SlinDev. All rights reserved.
 //
 
-#ifndef __PF_GOLDFISH_H_
-#define __PF_GOLDFISH_H_
+#ifndef __PF_AIRBUBBLE_H_
+#define __PF_AIRBUBBLE_H_
 
 #include "Rayne.h"
 #include "RNPhysXWorld.h"
 
 namespace PF
 {
-	class Goldfish : public RN::Entity
+	class Airbubble : public RN::SceneNode
 	{
 	public:
-		Goldfish(RN::Model *model);
-		~Goldfish() override;
+		Airbubble(RN::Vector3 scale);
+		~Airbubble() override;
 		
 		void Update(float delta) override;
 		
 	private:
-		float _rotationChangeTimer;
-		float _rotationSpeed;
-		RN::PhysXKinematicController *_characterController;
+		RN::Entity *_floatingBubbleEntity;
+		RN::Vector3 _previousPosition;
+		float _movementTimer;
+		
+		RN::PhysXDynamicBody *_physicsBody;
 
-		RNDeclareMeta(Goldfish)
+		RNDeclareMeta(Airbubble)
 	};
 }
 
-#endif /* defined(__PF_GOLDFISH_H_) */
+#endif /* defined(__PF_AIRBUBBLE_H_) */

@@ -1,62 +1,62 @@
 //
-//  PFGoldfish.h
+//  PFAirbubble.h
 //  ProjectFriendship
 //
 //  Copyright 2020 by SlinDev. All rights reserved.
 //
 
-#include "PFGoldfish.h"
+#include "PFAirbubble.h"
 #include "PFWorld.h"
-
-#define MAX_SWIM_SPEED 50.0f
 
 namespace PF
 {
-	RNDefineMeta(Goldfish, RN::Entity)
+	RNDefineMeta(Airbubble, RN::SceneNode)
 
-	Goldfish::Goldfish(RN::Model *model) : _rotationChangeTimer(0.0f), _rotationSpeed(0.0f)
+	Airbubble::Airbubble(RN::Vector3 scale) : _movementTimer(0.0f)
 	{
-		SetModel(World::GetSharedInstance()->MakeDeepCopy(model));
-		model->GetSkeleton()->SetAnimation(RNCSTR("swimming"));
+		RN::Model *bubbleModel = World::GetSharedInstance()->AssignShader(RN::Model::WithName(RNCSTR("models/airbubble.sgm")), Types::MaterialAirbubble);
+		_floatingBubbleEntity = new RN::Entity(bubbleModel);
+		_floatingBubbleEntity->AddFlags(RN::Entity::Flags::DrawLater);
+		_floatingBubbleEntity->SetScale(scale);
+		AddChild(_floatingBubbleEntity->Autorelease());
+		
+		RN::PhysXMaterial *physicsMaterial = new RN::PhysXMaterial();
+		_physicsBody = RN::PhysXDynamicBody::WithShape(RN::PhysXSphereShape::WithRadius(scale.x * 0.5f, physicsMaterial->Autorelease()), 1.0f);
+		_physicsBody->SetCollisionFilter(Types::CollisionAirbubble, Types::CollisionAll);
+		_physicsBody->SetEnableCCD(true);
+		AddAttachment(_physicsBody);
+		
+		_previousPosition = GetWorldPosition();
 	}
 	
-	Goldfish::~Goldfish()
+	Airbubble::~Airbubble()
 	{
 		
 	}
 	
-	void Goldfish::Update(float delta)
+	void Airbubble::Update(float delta)
 	{
 		if(delta > 0.2f)
 		{
 			delta = 0.2f;
 		}
 		
-		_rotationChangeTimer -= delta;
-		if(_rotationChangeTimer <= 0.0f)
+		if(_physicsBody)
 		{
-			_rotationChangeTimer = RN::RandomNumberGenerator::GetSharedGenerator()->GetRandomFloatRange(10.0f, 50.0f);
-			_rotationSpeed = RN::RandomNumberGenerator::GetSharedGenerator()->GetRandomFloatRange(-30.0f, 30.0f);
+			_physicsBody->ApplyForce(RN::Vector3(0.0f, 15.0f, 0.0f));
+			_movementTimer += delta;
 			
-			Rotate(RN::Vector3(180.0f + RN::RandomNumberGenerator::GetSharedGenerator()->GetRandomFloatRange(-30.0f, 30.0f), 0.0f, 0.0f));
+			if(GetWorldPosition().GetSquaredDistance(_previousPosition) < 0.1f && _movementTimer > 5.0f)
+			{
+				RemoveAttachment(_physicsBody);
+				_physicsBody = nullptr;
+			}
+			_previousPosition = GetWorldPosition();
 		}
 		
-		World *world = World::GetSharedInstance();
-		RN::PhysXWorld *physicsWorld = world->GetPhysicsWorld();
-		
-		GetModel()->GetSkeleton()->Update(delta * 12.0f);
-		
-		Rotate(RN::Vector3(_rotationSpeed * delta, 0.0f, 0.0f));
-		RN::Vector3 movement = -GetForward() * MAX_SWIM_SPEED * delta;
-		
-		const RN::PhysXContactInfo &hitInfo = physicsWorld->CastRay(GetWorldPosition(), GetWorldPosition() - GetForward() * 40.0f + movement);
-		if(hitInfo.distance >= 0.0f)
+		if(GetWorldPosition().y > -20.0f)
 		{
-			_rotationChangeTimer = 0.0f;
-		}
-		else
-		{
-			Translate(movement);
+			World::GetSharedInstance()->RemoveLevelNode(this);
 		}
 
 		SceneNode::Update(delta);

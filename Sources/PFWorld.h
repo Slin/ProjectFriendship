@@ -17,6 +17,7 @@
 #include "PFPlayer.h"
 #include "PFGoldfish.h"
 #include "PFThread.h"
+#include "PFAirbubble.h"
 
 namespace PF
 {

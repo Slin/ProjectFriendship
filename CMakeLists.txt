@@ -76,6 +76,7 @@ set(SOURCES
 	Sources/PFTypes.cpp
 	Sources/PFPlayer.cpp
 	Sources/PFGoldfish.cpp
+	Sources/PFAirbubble.cpp
 	Sources/PFThread.cpp)
 
 set(HEADERS
@@ -85,6 +86,7 @@ set(HEADERS
 	Sources/PFTypes.h
 	Sources/PFPlayer.h
 	Sources/PFGoldfish.h
+	Sources/PFAirbubble.h
 	Sources/PFThread.h)
 
 set(RESOURCES

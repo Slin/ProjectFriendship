@@ -25,6 +25,7 @@ namespace PF
 		
 		RN::PhysXMaterial *physicsMaterial = new RN::PhysXMaterial();
 		_characterController = new RN::PhysXKinematicController(0.2f, 0.01f, physicsMaterial->Autorelease(), 0.1f);
+		_characterController->SetCollisionFilter(Types::CollisionPlayer, Types::CollisionPlayerMask);
 		AddAttachment(_characterController->Autorelease());
 		
 		//Create the body entity
@@ -299,7 +300,7 @@ namespace PF
 		}
 		
 		RN::Vector3 gravity;
-		const RN::PhysXContactInfo &gravityContact = physicsWorld->CastRay(GetWorldPosition(), GetWorldPosition() - GetUp() * 100.0f);
+		const RN::PhysXContactInfo &gravityContact = physicsWorld->CastRay(GetWorldPosition(), GetWorldPosition() - GetUp() * 100.0f, Types::CollisionPlayerMask);
 		if(gravityContact.distance >= 0.0f)
 		{
 			if(vrCamera)
@@ -383,8 +384,12 @@ namespace PF
 			}
 		}
 		
-		if(handController[0].button[RN::VRControllerTrackingState::BY])
+		if(handController[0].button[RN::VRControllerTrackingState::BY] && _airBubbleSize > 0.6f)
 		{
+			Airbubble *worldBubble = new Airbubble(_airBubbleEntity->GetWorldScale());
+			world->AddLevelNode(worldBubble->Autorelease());
+			worldBubble->SetWorldPosition(_airBubbleEntity->GetWorldPosition());
+			
 			_airBubbleSize = 0.5f;
 			_airBubbleEntity->SetScale(RN::Vector3(_airBubbleSize, _airBubbleSize, _airBubbleSize));
 		}
