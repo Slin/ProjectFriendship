@@ -18,7 +18,7 @@ namespace PF
 {
 	RNDefineMeta(Player, RN::SceneNode)
 
-	Player::Player() : _rotateTimer(0.0f), _additionalBodyRotationAngle(0.0f), _legGravity{0.0f, 0.0f, 0.0f, 0.0f}, _isSwimming(false), _wantsToSwim(false), _headCameraTilt(0.0f), _snapRotationAngle(0.0f), _activeThread{nullptr, nullptr}
+	Player::Player() : _rotateTimer(0.0f), _gravity(0.0f), _isSwimming(true), _headCameraTilt(0.0f), _snapRotationAngle(0.0f), _activeThread{nullptr, nullptr}
 	{
 		_head = new RN::SceneNode();
 		AddChild(_head->Autorelease());
@@ -42,8 +42,8 @@ namespace PF
 		RN::Camera *headCamera = world->GetHeadCamera();
 		if(vrCamera)
 		{
-			_headPositionOffset = vrCamera->GetHead()->GetPosition();
-			vrCamera->SetWorldPosition(GetWorldPosition() + ORIGIN_TO_HEAD_OFFSET - _headPositionOffset);
+			_previousHeadPosition = vrCamera->GetHead()->GetPosition();
+			vrCamera->SetWorldPosition(GetWorldPosition() - vrCamera->GetHead()->GetPosition());
 			vrCamera->SetWorldRotation(GetWorldRotation());
 			vrCamera->GetHead()->AddChild(_head);
 		}
@@ -51,7 +51,7 @@ namespace PF
 		{
 			headCamera->SetWorldPosition(GetWorldPosition());
 			headCamera->SetRotation(RN::Quaternion());
-			_headPositionOffset = headCamera->GetPosition();
+			_previousHeadPosition = headCamera->GetPosition();
 		}
 
 		RN::Mesh *box1Mesh = RN::Mesh::WithColoredCube(RN::Vector3(0.01f, 0.05f, 0.05f), RN::Color::WithRGBA(1.0f, 0.0f, 0.0f));
@@ -91,20 +91,11 @@ namespace PF
 		
 		RN::Camera *headCamera = world->GetHeadCamera();
 		RN::VRCamera *vrCamera = world->GetVRCamera();
-		RN::Vector3 localHeadToCameraPosition;
 		if(vrCamera)
 		{
 			for(int i = 0; i < 2; i++)
 			{
 				handController[i] = vrCamera->GetControllerTrackingState(i);
-			}
-			
-			//Limit head movement
-			localHeadToCameraPosition = vrCamera->GetHead()->GetPosition() - _headPositionOffset;
-			if(localHeadToCameraPosition.GetLength() > HEAD_CAGE_SIZE*0.5f)
-			{
-				_headPositionOffset += localHeadToCameraPosition.GetNormalized(localHeadToCameraPosition.GetLength() - HEAD_CAGE_SIZE*0.5f);
-				localHeadToCameraPosition.Normalize(HEAD_CAGE_SIZE*0.5f);
 			}
 		}
 		else
@@ -115,14 +106,14 @@ namespace PF
 			if(inputManager->IsControlToggling(RNCSTR("SPACE")) && !_isSwimming)
 			{
 				_currentSwimDirection = _head->GetUp() * 5.0f;
-				_wantsToSwim = true;
+				_isSwimming = true;
 			}
 			
 			handController[0].indexTrigger = inputManager->IsControlToggling(RNCSTR("E"))? 1.0f:0.0f;
 			handController[0].button[RN::VRControllerTrackingState::Button::AX] = inputManager->IsControlToggling(RNCSTR("Q"));
 		}
 		
-		RN::Quaternion baseRotationWithoutYaw = GetWorldRotation() * RN::Quaternion(RN::Vector3(-_snapRotationAngle-_additionalBodyRotationAngle, 0.0f, 0.0f));
+		RN::Quaternion baseRotationWithoutYaw = GetWorldRotation() * RN::Quaternion(RN::Vector3(-_snapRotationAngle, 0.0f, 0.0f));
 		
 		//Always snap turn for now
 		if(!vrCamera)
@@ -173,14 +164,6 @@ namespace PF
 		RN::Vector3 globalMovement;
 		if(handController[0].handTrigger < 0.3f || handController[1].handTrigger < 0.3f || _isSwimming)
 		{
-			if(_wantsToSwim)
-			{
-				RNDebug("Wants to swim");
-				
-				_wantsToSwim = false;
-				_isSwimming = true;
-			}
-			
 			//Crawling with thumbstick
 			if(!_isSwimming)
 			{
@@ -238,6 +221,8 @@ namespace PF
 					//RNDebug("rotation: " << rotationAngle.x << ", " << rotationAngle.y << ", " << rotationAngle.z);
 					
 					_currentSwimRotation += combinedRotation.GetEulerAngle() / std::max(delta, RN::k::EpsilonFloat) * 0.03f;
+					_currentSwimRotation.y = 0.0f;
+					_currentSwimRotation.z = 0.0f;
 					
 					baseRotationWithoutYaw = RN::Quaternion(_currentSwimRotation*delta) * baseRotationWithoutYaw;
 					
@@ -276,8 +261,7 @@ namespace PF
 			//Jumping by grabbing air and pulling in direction while letting go of trigger
 			RN::Vector3 handMovementDiff = (baseRotationWithoutYaw * cameraSnapRotation).GetRotatedVector((handController[0].velocityLinear + handController[1].velocityLinear) * -1.0f);
 			_currentSwimDirection = _currentSwimDirection.GetLerp(handMovementDiff, 0.8f);
-			
-			_wantsToSwim = true;
+			_isSwimming = true;
 		}
 		
 		_previousHandPosition[0] = handController[0].position;
@@ -290,159 +274,51 @@ namespace PF
 			_currentSwimDirection = RN::Vector3();
 		}
 		
-		//Translate(globalMovement);
-		_characterController->Move(globalMovement, delta);
-		
-		//Rotation
-		RN::Vector3 worldCameraPosition = GetWorldPosition() + GetWorldRotation().GetRotatedVector(ORIGIN_TO_HEAD_OFFSET + RN::Quaternion(RN::Vector3(-_additionalBodyRotationAngle, 0.0f, 0.0f)).GetRotatedVector(localHeadToCameraPosition));
-
-		//This used to work fine and suddenly something broke o.O didn't find any obvious changes...
-/*		float rotationDirection = vrCamera->GetHead()->GetRotation().GetEulerAngle().x - _additionalBodyRotationAngle;
-		if(rotationDirection > 180.0f) rotationDirection -= 360.0f;
-		if(rotationDirection < -180.0f) rotationDirection += 360.0f;
-		_additionalBodyRotationAngle += std::min(std::abs(delta * 2.0f * rotationDirection), std::abs(rotationDirection)) * ((0 < rotationDirection) - (rotationDirection < 0));
-		while(_additionalBodyRotationAngle >= 360.0f) _additionalBodyRotationAngle -= 360.0f;
-		while(_additionalBodyRotationAngle < 0.0f) _additionalBodyRotationAngle += 360.0f;*/
-		
-		RN::Vector3 rotatedCameraToHeadPosition = (baseRotationWithoutYaw * cameraSnapRotation).GetRotatedVector(-localHeadToCameraPosition);
-		RN::Vector3 worldHeadPosition = worldCameraPosition + rotatedCameraToHeadPosition;
-		RN::Vector3 rotatedHeadToBodyPosition = (baseRotationWithoutYaw * cameraSnapRotation * RN::Vector3(_additionalBodyRotationAngle, 0.0f, 0.0f)).GetRotatedVector(-ORIGIN_TO_HEAD_OFFSET);
-		RN::Vector3 worldBodyPosition = worldHeadPosition + rotatedHeadToBodyPosition;
-		SetWorldPosition(worldBodyPosition);
-		SetWorldRotation(baseRotationWithoutYaw * cameraSnapRotation * RN::Vector3(_additionalBodyRotationAngle, 0.0f, 0.0f));
-		
-		RN::Vector3 traceDirection[4];
-		traceDirection[0] = RN::Vector3(-1.0f, -1.0f, -1.0f); //front-left
-		traceDirection[1] = RN::Vector3(1.0f, -1.0f, -1.0f); //front-right
-		traceDirection[2] = RN::Vector3(-1.0f, -1.0f, 1.0f); //back-left
-		traceDirection[3] = RN::Vector3(1.0f, -1.0f, 1.0f); //back-right
-		RN::Vector3 traceStartPosition = GetWorldPosition() + GetWorldRotation().GetRotatedVector(ORIGIN_TO_COLLISION_OFFSET);
-		RN::PhysXContactInfo legContactInfo[4];
-		int closestIndices[4] = {0, 0, 0, 0};
-		int closeEnoughCounter = 4;
-		for(int i = 0; i < 4; i++)
+		RN::Vector3 localMovement;
+		if(vrCamera)
 		{
-			traceDirection[i] = GetWorldRotation().GetRotatedVector(traceDirection[i]);
-			legContactInfo[i] = physicsWorld->CastRay(traceStartPosition, traceStartPosition + traceDirection[i] * 1000.0f, Types::CollisionLevel);
-			
-			if(legContactInfo[i].distance > traceDirection[i].GetLength()*LEG_LENGTH)
+			localMovement = vrCamera->GetHead()->GetPosition() - _previousHeadPosition;
+			localMovement = vrCamera->GetWorldRotation().GetRotatedVector(localMovement);
+			_previousHeadPosition = vrCamera->GetHead()->GetPosition();
+		}
+		
+		RN::Vector3 gravity;
+		const RN::PhysXContactInfo &gravityContact = physicsWorld->CastRay(GetWorldPosition(), GetWorldPosition() - GetUp() * 100.0f);
+		if(gravityContact.distance >= 0.0f)
+		{
+			if(vrCamera)
 			{
+				if(_isSwimming && gravityContact.distance <= vrCamera->GetHead()->GetPosition().y)
+				{
+					_isSwimming = false;
+				}
+				
 				if(!_isSwimming)
 				{
-					_legGravity[i] += /*9.81f*/ 30.0f * delta;
-				}
-				else
-				{
-					
+					gravity = GetUp() * (vrCamera->GetHead()->GetPosition().y - gravityContact.distance);
 				}
 			}
 			else
 			{
-				_legGravity[i] = 0.0f;
-			}
-			
-			closestIndices[i] = i;
-			for(int n = i-1; n >= 0; n--)
-			{
-				if(legContactInfo[i].distance < legContactInfo[closestIndices[n]].distance || legContactInfo[closestIndices[n]].distance < 0.0f)
+				if(_isSwimming && gravityContact.distance <= 1.8f)
 				{
-					closestIndices[n+1] = closestIndices[n];
-					closestIndices[n] = i;
+					_isSwimming = false;
 				}
-				else
+				
+				if(!_isSwimming)
 				{
-					break;
+					gravity = GetUp() * (1.8f - gravityContact.distance);
 				}
-			}
-			
-			float maxTraceLength = traceDirection[i].GetLength() * LEG_LENGTH + _legGravity[i] * delta;
-			if(legContactInfo[i].distance > maxTraceLength || legContactInfo[i].distance < 0.0f)
-			{
-				legContactInfo[i].position = traceStartPosition + traceDirection[i].GetNormalized(maxTraceLength);
-				closeEnoughCounter -= 1;
 			}
 		}
 		
-		bool wasSwimming = _isSwimming;
-		if(closeEnoughCounter >= 3)
-		{
-			_isSwimming = false;
-		}
-		else if(!_isSwimming)
-		{
-			_isSwimming = true;
-			if(delta > 0.0001f)
-				_currentSwimDirection = globalMovement / delta;
-		}
-		
-		RN::Vector3 leftRightDirection;
-		RN::Vector3 backFrontDirection;
-		
-		//Ignore a raycast in the back
-		if(closestIndices[3] > 1)
-		{
-			leftRightDirection = legContactInfo[1].position - legContactInfo[0].position;
-			
-			//Ignore a raycast in the back-left
-			if(closestIndices[3] == 2)
-			{
-				backFrontDirection = legContactInfo[1].position - legContactInfo[3].position;
-			}
-			//Ignore a raycast in the back-right
-			else
-			{
-				backFrontDirection = legContactInfo[0].position - legContactInfo[2].position;
-			}
-		}
-		//Ignore a raycast in the front
-		else
-		{
-			leftRightDirection = legContactInfo[3].position - legContactInfo[2].position;
-			
-			//Ignore a raycast in the front-left
-			if(closestIndices[3] == 0)
-			{
-				backFrontDirection = legContactInfo[1].position - legContactInfo[3].position;
-			}
-			//Ignore a raycast in the front-right
-			else
-			{
-				backFrontDirection = legContactInfo[0].position - legContactInfo[2].position;
-			}
-		}
-			
-		if(isCrawling || (wasSwimming && !_isSwimming))
-		{
-			RN::Vector3 targetNormal = leftRightDirection.GetCrossProduct(backFrontDirection).GetNormalized();
-			
-			//TODO: make this more stable
-			if(std::abs(globalMovement.GetNormalized().GetDotProduct(GetRight())) > 0.5f)
-			{
-				leftRightDirection = -targetNormal.GetCrossProduct(backFrontDirection).GetNormalized();
-				backFrontDirection = -targetNormal.GetCrossProduct(leftRightDirection).GetNormalized();
-			}
-			else
-			{
-				backFrontDirection = -targetNormal.GetCrossProduct(leftRightDirection).GetNormalized();
-				leftRightDirection = targetNormal.GetCrossProduct(backFrontDirection).GetNormalized();
-			}
-			RN::Quaternion targetRotation = RN::Quaternion::WithNormalizedVectors(backFrontDirection, leftRightDirection, targetNormal);
-			
-			RN::Vector3 averageFeetPosition = (legContactInfo[3].position + legContactInfo[2].position + legContactInfo[1].position + legContactInfo[0].position) / 4.0f;
-			RN::Vector3 targetPosition = averageFeetPosition + targetNormal.GetNormalized(LEG_LENGTH);
-			
-			RN::Vector3 gravity = targetPosition - traceStartPosition;
-			//Translate(gravity);
-			_characterController->Move(gravity, delta);
-			
-			SetWorldRotation(targetRotation);
-		}
-		worldCameraPosition = GetWorldPosition() + GetWorldRotation().GetRotatedVector(ORIGIN_TO_HEAD_OFFSET + RN::Quaternion(RN::Vector3(-_additionalBodyRotationAngle, 0.0f, 0.0f)).GetRotatedVector(localHeadToCameraPosition));
+		_characterController->Move(globalMovement + localMovement + gravity, delta);
+		SetWorldRotation(baseRotationWithoutYaw * cameraSnapRotation);
 		
 		if(vrCamera)
 		{
-			vrCamera->SetWorldRotation(GetWorldRotation() * RN::Quaternion(RN::Vector3(-_additionalBodyRotationAngle, 0.0f, 0.0f)));
-			vrCamera->SetWorldPosition(worldCameraPosition - vrCamera->GetWorldRotation().GetRotatedVector(vrCamera->GetHead()->GetPosition()));
+			vrCamera->SetWorldRotation(GetWorldRotation());
+			vrCamera->SetWorldPosition(GetWorldPosition() - vrCamera->GetWorldRotation().GetRotatedVector(vrCamera->GetHead()->GetPosition()));
 			
 			_debugBox1->SetWorldPosition(vrCamera->GetWorldPosition() + baseRotationWithoutYaw.GetRotatedVector(handController[0].position));
 			_debugBox2->SetWorldPosition(vrCamera->GetWorldPosition() + baseRotationWithoutYaw.GetRotatedVector(handController[1].position));
@@ -451,9 +327,9 @@ namespace PF
 		}
 		else
 		{
-			headCamera->SetWorldRotation(GetWorldRotation() * RN::Quaternion(RN::Vector3(-_additionalBodyRotationAngle, 0.0f, 0.0f)));
+			headCamera->SetWorldRotation(GetWorldRotation());
 			headCamera->Rotate(RN::Vector3(0.0f, _headCameraTilt, 0.0f));
-			headCamera->SetWorldPosition(worldCameraPosition);
+			headCamera->SetWorldPosition(GetWorldPosition());
 		}
 		
 		for(int i = 0; i < 2; i++)
@@ -467,7 +343,7 @@ namespace PF
 			}
 			else
 			{
-				handPosition = worldCameraPosition;
+				handPosition = GetWorldPosition();
 				handRotation = headCamera->GetWorldRotation();
 			}
 			

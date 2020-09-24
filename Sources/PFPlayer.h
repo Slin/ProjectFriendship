@@ -30,17 +30,15 @@ namespace PF
 		RN::Model *_bodyModel;
 		float _headCameraTilt;
 		
-		RN::Vector3 _headPositionOffset;
-		
 		float _rotateTimer;
 		float _snapRotationAngle;
-		float _additionalBodyRotationAngle;
-		float _legGravity[4];
+		float _gravity;
 		
 		RN::Vector3 _currentSwimDirection;
 		RN::Vector3 _currentSwimRotation;
 		bool _isSwimming;
-		bool _wantsToSwim;
+		
+		RN::Vector3 _previousHeadPosition;
 		RN::Vector3 _previousHandPosition[2];
 		
 		RN::Entity *_debugBox1;
