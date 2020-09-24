@@ -47,7 +47,8 @@ FragmentVertex air_vertex(InputVertex vert)
 
 	float3 worldNormal = normalize(mul(modelMatrix, float4(vert.normal, 0.0)).xyz);
 	half light = worldNormal.y + 1.5;
-	result.color = diffuseColor * ambientColor * light;
+	result.color = diffuseColor * ambientColor;
+	result.color.rgb *= light;
 
 	return result;
 }

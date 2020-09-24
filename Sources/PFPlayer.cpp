@@ -37,7 +37,7 @@ namespace PF
 		//_bodyEntity->SetScale(RN::Vector3(20.0f, 20.0f, 20.0f));
 		//_bodyEntity->GetModel()->GetSkeleton()->SetAnimation(RNCSTR("walk_fixed"));
 		
-		_airBubbleEntity = new RN::Entity(World::GetSharedInstance()->AssignShader(RN::Model::WithName(RNCSTR("models/airbubble.sgm")), Types::MaterialDefault));
+		_airBubbleEntity = new RN::Entity(World::GetSharedInstance()->AssignShader(RN::Model::WithName(RNCSTR("models/airbubble.sgm")), Types::MaterialAirbubble));
 		AddChild(_airBubbleEntity->Autorelease());
 		_airBubbleEntity->SetPosition(RN::Vector3(0.0f, -0.8f, 0.3f));
 		_airBubbleEntity->AddFlags(RN::Entity::Flags::DrawLate);

@@ -34,8 +34,6 @@ struct FragmentVertex
 {
 	float4 position : SV_POSITION;
 	half4 color : TEXCOORD0;
-	half4 causticCoords : TEXCOORD1;
-	half causticBlend : TEXCOORD2;
 	half3 worldPosition : TEXCOORD3;
 };
 
