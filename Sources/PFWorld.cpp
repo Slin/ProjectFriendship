@@ -274,7 +274,7 @@ namespace PF
 		RN::Entity *reedEntity = new RN::Entity(reedModel);
 		AddLevelNode(reedEntity->Autorelease());
 		
-		RN::PhysXCompoundShape *reedShape = RN::PhysXCompoundShape::WithModel(reedModel, levelPhysicsMaterial->Autorelease(), true);
+		RN::PhysXCompoundShape *reedShape = RN::PhysXCompoundShape::WithModel(reedModel, levelPhysicsMaterial->Autorelease(), true, true);
 		RN::PhysXStaticBody *reedBody = RN::PhysXStaticBody::WithShape(reedShape);
 		reedBody->SetCollisionFilter(Types::CollisionLevel, Types::CollisionAll);
 		reedEntity->AddAttachment(reedBody);
@@ -292,7 +292,7 @@ namespace PF
 		RN::Entity *grassEntity = new RN::Entity(grassModel);
 		AddLevelNode(grassEntity->Autorelease());
 		
-		RN::PhysXCompoundShape *grassShape = RN::PhysXCompoundShape::WithModel(grassModel, levelPhysicsMaterial->Autorelease(), true);
+		RN::PhysXCompoundShape *grassShape = RN::PhysXCompoundShape::WithModel(grassModel, levelPhysicsMaterial->Autorelease(), true, true);
 		RN::PhysXStaticBody *grassBody = RN::PhysXStaticBody::WithShape(grassShape);
 		grassBody->SetCollisionFilter(Types::CollisionLevel, Types::CollisionAll);
 		grassEntity->AddAttachment(grassBody);
@@ -301,7 +301,7 @@ namespace PF
 		RN::Entity *lilysEntity = new RN::Entity(lilysModel);
 		AddLevelNode(lilysEntity->Autorelease());
 		
-		RN::PhysXCompoundShape *waterlilyShape = RN::PhysXCompoundShape::WithModel(lilysModel, levelPhysicsMaterial->Autorelease(), true);
+		RN::PhysXCompoundShape *waterlilyShape = RN::PhysXCompoundShape::WithModel(lilysModel, levelPhysicsMaterial->Autorelease(), true, true);
 		RN::PhysXStaticBody *waterlilyBody = RN::PhysXStaticBody::WithShape(waterlilyShape);
 		waterlilyBody->SetCollisionFilter(Types::CollisionLevel, Types::CollisionAll);
 		lilysEntity->AddAttachment(waterlilyBody);

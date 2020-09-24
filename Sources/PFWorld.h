@@ -16,6 +16,7 @@
 #include "PFCameraManager.h"
 #include "PFPlayer.h"
 #include "PFGoldfish.h"
+#include "PFThread.h"
 
 namespace PF
 {
@@ -34,6 +35,8 @@ namespace PF
 		RN::Camera *GetHeadCamera() const { return _cameraManager.GetHeadCamera(); }
 		RN::Camera *GetPreviewCamera() const { return _cameraManager.GetPreviewCamera(); }
 		CameraManager &GetCameraManager() { return _cameraManager; }
+		
+		Player *GetPlayer() const { return _player; }
 
 		RN::Model *AssignShader(RN::Model *model, Types::MaterialType materialType) const;
 		RN::Model *MakeDeepCopy(RN::Model *model) const;

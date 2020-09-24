@@ -10,6 +10,7 @@
 
 #include "Rayne.h"
 #include "RNPhysXWorld.h"
+#include "PFThread.h"
 
 namespace PF
 {
@@ -20,6 +21,8 @@ namespace PF
 		~Player() override;
 		
 		void Update(float delta) override;
+		
+		void ResetThread(Thread *thread);
 		
 	private:
 		RN::SceneNode *_head;
@@ -42,6 +45,8 @@ namespace PF
 		
 		RN::Entity *_debugBox1;
 		RN::Entity *_debugBox2;
+		
+		Thread *_activeThread[2];
 		
 		RN::PhysXKinematicController *_characterController;
 

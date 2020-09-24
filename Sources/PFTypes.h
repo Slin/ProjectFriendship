@@ -17,6 +17,7 @@ namespace PF
 		enum CollisionType
 		{
 			CollisionLevel = 1 << 0,
+			CollisionThread = 1 << 1,
 
 			CollisionAll = 0xffffffff
 		};

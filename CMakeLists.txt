@@ -75,7 +75,8 @@ set(SOURCES
 	Sources/PFWorld.cpp
 	Sources/PFTypes.cpp
 	Sources/PFPlayer.cpp
-	Sources/PFGoldfish.cpp)
+	Sources/PFGoldfish.cpp
+	Sources/PFThread.cpp)
 
 set(HEADERS
 	Sources/PFApplication.h
@@ -83,7 +84,8 @@ set(HEADERS
 	Sources/PFWorld.h
 	Sources/PFTypes.h
 	Sources/PFPlayer.h
-	Sources/PFGoldfish.h)
+	Sources/PFGoldfish.h
+	Sources/PFThread.h)
 
 set(RESOURCES
 	manifest.json

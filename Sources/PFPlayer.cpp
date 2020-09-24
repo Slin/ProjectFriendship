@@ -18,7 +18,7 @@ namespace PF
 {
 	RNDefineMeta(Player, RN::SceneNode)
 
-	Player::Player() : _rotateTimer(0.0f), _additionalBodyRotationAngle(0.0f), _legGravity{0.0f, 0.0f, 0.0f, 0.0f}, _isSwimming(false), _wantsToSwim(false), _headCameraTilt(0.0f), _snapRotationAngle(0.0f)
+	Player::Player() : _rotateTimer(0.0f), _additionalBodyRotationAngle(0.0f), _legGravity{0.0f, 0.0f, 0.0f, 0.0f}, _isSwimming(false), _wantsToSwim(false), _headCameraTilt(0.0f), _snapRotationAngle(0.0f), _activeThread{nullptr, nullptr}
 	{
 		_head = new RN::SceneNode();
 		AddChild(_head->Autorelease());
@@ -117,6 +117,9 @@ namespace PF
 				_currentSwimDirection = _head->GetUp() * 5.0f;
 				_wantsToSwim = true;
 			}
+			
+			handController[0].indexTrigger = inputManager->IsControlToggling(RNCSTR("E"))? 1.0f:0.0f;
+			handController[0].button[RN::VRControllerTrackingState::Button::AX] = inputManager->IsControlToggling(RNCSTR("Q"));
 		}
 		
 		RN::Quaternion baseRotationWithoutYaw = GetWorldRotation() * RN::Quaternion(RN::Vector3(-_snapRotationAngle-_additionalBodyRotationAngle, 0.0f, 0.0f));
@@ -197,6 +200,11 @@ namespace PF
 					swimInput = headCamera->GetForward() * handController[0].thumbstick.y * 10.0f;
 					swimInput += headCamera->GetRight() * handController[0].thumbstick.x * 10.0f;
 					swimInput *= delta;
+					
+					if(handController[0].button[RN::VRControllerTrackingState::AX] && _activeThread[0])
+					{
+						swimInput += (_activeThread[0]->GetWorldPosition() - headCamera->GetWorldPosition()).GetNormalized(delta * 20.0f);
+					}
 				}
 				else
 				{
@@ -239,6 +247,15 @@ namespace PF
 					//rightHandDirection *= _head->GetForward().GetDotProduct(rightHandDirection.GetNormalized());
 					
 					swimInput = (leftHandDirection + rightHandDirection) / std::max(delta, RN::k::EpsilonFloat) * 0.1f;
+					
+					if(handController[0].button[RN::VRControllerTrackingState::AX] && _activeThread[0] && _activeThread[0]->CanPull())
+					{
+						swimInput += (_activeThread[0]->GetWorldPosition() - leftHandPosition).GetNormalized(delta * 8.0f);
+					}
+					if(handController[1].button[RN::VRControllerTrackingState::AX] && _activeThread[1] && _activeThread[1]->CanPull())
+					{
+						swimInput += (_activeThread[1]->GetWorldPosition() - leftHandPosition).GetNormalized(delta * 8.0f);
+					}
 					
 					//swimInput *= 200.0f;
 				}
@@ -433,7 +450,54 @@ namespace PF
 			headCamera->Rotate(RN::Vector3(0.0f, _headCameraTilt, 0.0f));
 			headCamera->SetWorldPosition(worldCameraPosition);
 		}
+		
+		for(int i = 0; i < 2; i++)
+		{
+			RN::Vector3 handPosition;
+			RN::Quaternion handRotation;
+			if(vrCamera)
+			{
+				handPosition = vrCamera->GetWorldPosition() + baseRotationWithoutYaw.GetRotatedVector(handController[i].position);
+				handRotation = baseRotationWithoutYaw * handController[i].rotation;
+			}
+			else
+			{
+				handPosition = worldCameraPosition;
+				handRotation = headCamera->GetWorldRotation();
+			}
+			
+			RN::Vector3 handForward = handRotation.GetRotatedVector(RN::Vector3(0.0f, 0.0f, -1.0f));
+			if(handController[i].indexTrigger > 0.3f)
+			{
+				if(!_activeThread[i])
+				{
+					_activeThread[i] = new Thread();
+					world->AddLevelNode(_activeThread[i]);
+					_activeThread[i]->SetPosition(handPosition, false);
+					_activeThread[i]->Shoot(handForward*10.0f, false);
+				}
+				
+				_activeThread[i]->SetPosition(handPosition, true);
+			}
+			else if(_activeThread[i])
+			{
+				_activeThread[i]->Shoot(handForward*10.0f, true);
+				_activeThread[i] = nullptr;
+			}
+		}
 
 		SceneNode::Update(delta);
+	}
+
+	void Player::ResetThread(Thread *thread)
+	{
+		if(thread == _activeThread[0])
+		{
+			_activeThread[0] = nullptr;
+		}
+		else if(thread == _activeThread[1])
+		{
+			_activeThread[1] = nullptr;
+		}
 	}
 }
