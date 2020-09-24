@@ -28,7 +28,8 @@ namespace PF
 			MaterialGround,
 			MaterialMoving,
 			MaterialWater,
-			MaterialPlayer
+			MaterialPlayer,
+			MaterialAirbubble
 		};
 	}
 }

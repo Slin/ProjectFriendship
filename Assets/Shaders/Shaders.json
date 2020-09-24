@@ -53,6 +53,21 @@
 	},
 
 	{
+		"file": "Air.hlsl",
+		"shaders":
+		[
+			{
+				"name": "air_vertex",
+				"type": "vertex"
+			},
+			{
+				"name": "air_fragment",
+				"type": "fragment"
+			}
+		]
+	},
+
+	{
 		"file": "Water.hlsl",
 		"shaders":
 		[

@@ -198,6 +198,20 @@ namespace PF
 					material->AddTexture(RN::Texture::WithName(RNCSTR("models/caustics.*")));
 					break;
 				}
+					
+				case Types::MaterialAirbubble:
+				{
+					material->SetDepthWriteEnabled(false);
+					material->SetBlendOperation(RN::BlendOperation::Add, RN::BlendOperation::Add);
+					material->SetDepthMode(RN::DepthMode::LessOrEqual);
+					material->SetAlphaToCoverage(false);
+					material->SetCullMode(RN::CullMode::BackFace);
+					material->SetAmbientColor(RN::Color::WithRGBA(1.0f, 1.0f, 1.0f, 0.5f));
+					RN::Shader::Options *shaderOptions = RN::Shader::Options::WithMesh(lodStage->GetMeshAtIndex(i));
+					material->SetVertexShader(shaderLibrary->GetShaderWithName(RNCSTR("air_vertex"), shaderOptions));
+					material->SetFragmentShader(shaderLibrary->GetShaderWithName(RNCSTR("air_fragment"), shaderOptions));
+					break;
+				}
 			}
 		}
 

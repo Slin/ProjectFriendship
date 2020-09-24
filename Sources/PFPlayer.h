@@ -30,9 +30,11 @@ namespace PF
 		RN::Model *_bodyModel;
 		float _headCameraTilt;
 		
+		RN::Entity *_airBubbleEntity;
+		float _airBubbleSize;
+		
 		float _rotateTimer;
 		float _snapRotationAngle;
-		float _gravity;
 		
 		RN::Vector3 _currentSwimDirection;
 		RN::Vector3 _currentSwimRotation;
