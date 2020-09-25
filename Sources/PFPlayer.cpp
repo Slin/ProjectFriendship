@@ -392,7 +392,7 @@ namespace PF
 			}
 		}
 		
-		if(handController[0].button[RN::VRControllerTrackingState::BY])
+		if(handController[0].button[RN::VRControllerTrackingState::BY] || handController[1].button[RN::VRControllerTrackingState::BY])
 		{
 			if(_airBubbleSize > 0.6f)
 			{
