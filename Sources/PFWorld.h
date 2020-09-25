@@ -11,6 +11,7 @@
 #include <Rayne.h>
 
 #include "RNPhysXWorld.h"
+#include "RNOpenALWorld.h"
 
 #include "PFTypes.h"
 #include "PFCameraManager.h"
@@ -33,6 +34,7 @@ namespace PF
 		~World();
 
 		RN::PhysXWorld *GetPhysicsWorld() const { return _physicsWorld; }
+		RN::OpenALWorld *GetAudioWorld() const { return _audioWorld; }
 		RN::ShaderLibrary *GetShaderLibrary() const { return _shaderLibrary; }
 		RN::VRCamera *GetVRCamera() const { return _cameraManager.GetVRCamera(); }
 		RN::Camera *GetHeadCamera() const { return _cameraManager.GetHeadCamera(); }
@@ -78,6 +80,8 @@ namespace PF
 
 		RN::PhysXWorld *_physicsWorld;
 		RN::PhysXBoxShape *_voxelOverlapShape;
+		
+		RN::OpenALWorld *_audioWorld;
 		
 		bool _isPaused;
 		bool _isDash;

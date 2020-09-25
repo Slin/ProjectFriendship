@@ -385,6 +385,13 @@ namespace PF
 		{
 			if(_airBubbleSize > 0.6f)
 			{
+				RN::OpenALSource *source = new RN::OpenALSource(RN::AudioAsset::WithName(RNCSTR("audio/pop.ogg")));
+				source->SetSelfdestruct(true);
+				source->SetPitch(RN::RandomNumberGenerator::GetSharedGenerator()->GetRandomFloatRange(0.7, 1.3));
+				source->SetWorldPosition(_airBubbleEntity->GetWorldPosition());
+				World::GetSharedInstance()->AddNode(source->Autorelease());
+				source->Play();
+				
 				Airbubble *worldBubble = new Airbubble(_airBubbleEntity->GetWorldScale());
 				world->AddLevelNode(worldBubble->Autorelease());
 				worldBubble->SetWorldPosition(_airBubbleEntity->GetWorldPosition());

@@ -42,6 +42,13 @@ namespace PF
 				const RN::PhysXContactInfo &contact = physicsWorld->CastRay(_position[i], _position[i] + _movement[i] * delta, Types::CollisionThreadMask);
 				if(contact.distance >= 0.0f)
 				{
+					RN::OpenALSource *source = new RN::OpenALSource(RN::AudioAsset::WithName(RNCSTR("audio/impact.ogg")));
+					source->SetSelfdestruct(true);
+					source->SetPitch(RN::RandomNumberGenerator::GetSharedGenerator()->GetRandomFloatRange(0.7, 1.3));
+					source->SetWorldPosition(_position[i] + _movement[i] * delta);
+					World::GetSharedInstance()->AddNode(source->Autorelease());
+					source->Play();
+					
 					_isAnchored[i] = true;
 					_movement[i] = RN::Vector3();
 					_position[i] = contact.position;
@@ -114,12 +121,26 @@ namespace PF
 			_isAnchored[1] = false;
 			_isOwnedByPlayer = false;
 			_floatingTimer = 0.0f;
+			
+			RN::OpenALSource *source = new RN::OpenALSource(RN::AudioAsset::WithName(RNCSTR("audio/shoot.ogg")));
+			source->SetSelfdestruct(true);
+			source->SetPitch(RN::RandomNumberGenerator::GetSharedGenerator()->GetRandomFloatRange(0.7, 1.3));
+			source->SetWorldPosition(_position[1]);
+			World::GetSharedInstance()->AddNode(source->Autorelease());
+			source->Play();
 		}
 		else
 		{
 			_stickyTimer[0] = 0.0f;
 			_movement[0] = speed;
 			_isAnchored[0] = false;
+			
+			RN::OpenALSource *source = new RN::OpenALSource(RN::AudioAsset::WithName(RNCSTR("audio/shoot.ogg")));
+			source->SetSelfdestruct(true);
+			source->SetPitch(RN::RandomNumberGenerator::GetSharedGenerator()->GetRandomFloatRange(0.7, 1.3));
+			source->SetWorldPosition(_position[0]);
+			World::GetSharedInstance()->AddNode(source->Autorelease());
+			source->Play();
 		}
 	}
 

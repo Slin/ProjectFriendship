@@ -9,6 +9,8 @@
 	[
 		"Rayne",
 		"RaynePhysX",
+		"RayneOgg",
+		"RayneOpenAL",
 		"RayneVulkan",
 		"RayneVR",
 		"RayneOculusMobile",

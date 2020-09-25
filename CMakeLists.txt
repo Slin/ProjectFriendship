@@ -19,8 +19,8 @@ option(RN_BUILD_RECAST_MODULE "Build the Recast pathfinding module" OFF)
 set(RN_BUILD_CONFIGURATION "independent" CACHE STRING "The build configuration.")
 set_property(CACHE RN_BUILD_CONFIGURATION PROPERTY STRINGS independent oculus steam)
 
-option(RN_BUILD_OGG_MODULE "Build the ogg audio file module" OFF)
-option(RN_BUILD_OPENAL_MODULE "Build the OpenAL module" OFF)
+option(RN_BUILD_OGG_MODULE "Build the ogg audio file module" ON)
+option(RN_BUILD_OPENAL_MODULE "Build the OpenAL module" ON)
 option(RN_BUILD_UI_MODULE "Build the UI module" OFF)
 if(WIN32)
 	set(CMAKE_SYSTEM_VERSION "10.0.10240.0")
@@ -59,9 +59,9 @@ set(CMAKE_OSX_DEPLOYMENT_TARGET 10.12)
 
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 if(APPLE)
-	set(CMAKE_INSTALL_RPATH @executable_path;@executable_path/../Resources/Resources/Modules/RaynePhysX;@executable_path/../Resources/Resources/Modules/RayneMetal;@executable_path/../Resources/Resources/Modules/RayneOpenVR;@executable_path/../Resources/Resources/Modules/RayneVR)
+	set(CMAKE_INSTALL_RPATH @executable_path;@executable_path/../Resources/Resources/Modules/RaynePhysX;@executable_path/../Resources/Resources/Modules/RayneOgg;@executable_path/../Resources/Resources/Modules/RayneOpenAL;@executable_path/../Resources/Resources/Modules/RayneMetal;@executable_path/../Resources/Resources/Modules/RayneOpenVR;@executable_path/../Resources/Resources/Modules/RayneVR)
 elseif(UNIX)
-	set(CMAKE_INSTALL_RPATH \$ORIGIN;\$ORIGIN/Resources/Modules/RaynePhysX;\$ORIGIN/Resources/Modules/RayneVulkan;\$ORIGIN/Resources/Modules/RayneOpenVR;\$ORIGIN/Resources/Modules/RayneVR)
+	set(CMAKE_INSTALL_RPATH \$ORIGIN;\$ORIGIN/Resources/Modules/RaynePhysX;\$ORIGIN/Resources/Modules/RayneOgg;\$ORIGIN/Resources/Modules/RayneOpenAL;\$ORIGIN/Resources/Modules/RayneVulkan;\$ORIGIN/Resources/Modules/RayneOpenVR;\$ORIGIN/Resources/Modules/RayneVR)
 endif()
 
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../Rayne" "${CMAKE_CURRENT_BINARY_DIR}/Rayne")
@@ -114,6 +114,8 @@ rayne_copy_resources(ProjectFriendship "${RESOURCES}" "${ADDITIONAL_RESOURCE_COP
 
 rayne_link_with(ProjectFriendship)
 rayne_use_modules(ProjectFriendship RaynePhysX)
+rayne_use_modules(ProjectFriendship RayneOgg)
+rayne_use_modules(ProjectFriendship RayneOpenAL)
 rayne_use_modules(ProjectFriendship RayneVR)
 
 if(ANDROID)

@@ -9,7 +9,8 @@
 		"Modules/RayneD3D12",
 		"Modules/RayneMetal",
 		"Modules/RayneVulkan",
-		"Modules/RayneOpenVR"
+		"Modules/RayneOpenVR",
+		"Modules/RayneOgg"
 	],
 	"RNPreferredTextureFileExtension~macos": "dds",
 	"RNPreferredTextureFileExtension~windows": "dds",

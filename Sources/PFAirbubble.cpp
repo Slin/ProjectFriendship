@@ -93,6 +93,13 @@ namespace PF
 	{
 		if(!_growableBubbleEntity) return false;
 		
+		RN::OpenALSource *source = new RN::OpenALSource(RN::AudioAsset::WithName(RNCSTR("audio/pop.ogg")));
+		source->SetSelfdestruct(true);
+		source->SetPitch(RN::RandomNumberGenerator::GetSharedGenerator()->GetRandomFloatRange(0.7, 1.3));
+		source->SetWorldPosition(GetWorldPosition());
+		World::GetSharedInstance()->AddNode(source->Autorelease());
+		source->Play();
+		
 		RN::Vector3 offset(_growableBubbleEntity->GetResolutionX() * 0.5f, _growableBubbleEntity->GetResolutionY() * 0.5f, _growableBubbleEntity->GetResolutionZ() * 0.5f);
 		RN::Vector3 position = _growableBubbleEntity->GetWorldRotation().Conjugate().GetRotatedVector(worldPosition - _growableBubbleEntity->GetWorldPosition()) / _growableBubbleEntity->GetWorldScale();
 		position += offset;

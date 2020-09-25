@@ -51,7 +51,6 @@ namespace PF
 		RN::Vector3 _previousHandPosition[2];
 		
 		RN::Entity *_handEntity[2];
-		
 		Thread *_activeThread[2];
 		
 		RN::PhysXKinematicController *_characterController;

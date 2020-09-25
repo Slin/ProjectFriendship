@@ -21,6 +21,7 @@ namespace PF
 		if(_sharedInstance)
 		{
 			_sharedInstance->RemoveAttachment(_sharedInstance->_physicsWorld);
+			_sharedInstance->RemoveAttachment(_sharedInstance->_audioWorld);
 
 #if RN_PLATFORM_ANDROID
 			if(_sharedInstance->_vrWindow)
@@ -117,6 +118,30 @@ namespace PF
 		{
 			CreatePrey();
 		}
+		
+		RN::String *foundOutputAudioDevice = nullptr;
+#if RN_PLATFORM_WINDOWS
+		if(_vrWindow && _vrWindow->IsKindOfClass(RN::OculusWindow::GetMetaClass()))
+		{
+			RN::Array *outputAudioDevices = RN::OpenALWorld::GetOutputDeviceNames();
+			outputAudioDevices->Enumerate<RN::String>([&foundOutputAudioDevice](RN::String *string, size_t index, bool &stop) {
+				if (string->GetRangeOfString(RNCSTR("Rift Audio")).length > 0)
+				{
+					foundOutputAudioDevice = string;
+				}
+			});
+		}
+#endif
+
+		_audioWorld = new RN::OpenALWorld(foundOutputAudioDevice);
+		AddAttachment(_audioWorld->Autorelease());
+
+		RN::OpenALListener *listener = new RN::OpenALListener();
+		_cameraManager.GetHeadSceneNode()->AddAttachment(listener);
+		_audioWorld->SetListener(listener);
+		
+		RN::OpenALSource *audioPlayer = _audioWorld->PlaySound(RN::AudioAsset::WithName(RNCSTR("audio/ambient.ogg")));
+		audioPlayer->SetRepeat(true);
 	}
 
 	void World::DidBecomeActive()
