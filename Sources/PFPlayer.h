@@ -25,6 +25,8 @@ namespace PF
 		void ResetThread(Thread *thread);
 		void Eat();
 		
+		RN::SceneNode *GetHead() const { return _head; }
+		
 	private:
 		bool _isFirstFrame;
 		RN::SceneNode *_head;

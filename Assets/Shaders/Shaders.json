@@ -81,6 +81,38 @@
 			}
 		]
 	},
+	
+	{
+		"file": "Text.hlsl",
+		"shaders":
+		[
+			{
+				"name": "text_vertex",
+				"type": "vertex",
+
+				"signature":
+				{
+					"options":
+					[
+						"RN_UV0",
+						"RN_COLOR"
+					]
+				}
+			},
+			{
+				"name": "text_fragment",
+				"type": "fragment",
+
+				"signature":
+				{
+					"options":
+					[
+						"RN_UV0"
+					]
+				}
+			}
+		]
+	},
 
 	{
 		"file": "PostProcessing.hlsl",

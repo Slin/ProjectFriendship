@@ -19,6 +19,7 @@
 #include "PFThread.h"
 #include "PFAirbubble.h"
 #include "PFPrey.h"
+#include "PFMessage.h"
 
 namespace PF
 {
@@ -39,6 +40,7 @@ namespace PF
 		CameraManager &GetCameraManager() { return _cameraManager; }
 		
 		Player *GetPlayer() const { return _player; }
+		Message *GetMessage() const { return _message; }
 
 		RN::Model *AssignShader(RN::Model *model, Types::MaterialType materialType) const;
 		RN::Model *MakeDeepCopy(RN::Model *model) const;
@@ -72,6 +74,7 @@ namespace PF
 		RN::Array *_levelNodes;
 		RN::Array *_staticAirbubbles;
 		Player *_player;
+		Message *_message;
 
 		RN::PhysXWorld *_physicsWorld;
 		RN::PhysXBoxShape *_voxelOverlapShape;

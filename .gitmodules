@@ -1,0 +1,3 @@
+[submodule "Vendor/Kalligraph"]
+	path = Vendor/Kalligraph
+	url = https://github.com/Slin/Kalligraph.git

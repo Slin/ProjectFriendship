@@ -65,6 +65,7 @@ elseif(UNIX)
 endif()
 
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../Rayne" "${CMAKE_CURRENT_BINARY_DIR}/Rayne")
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/Vendor/Kalligraph")
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/../../Rayne/CMake/Rayne.cmake)
 
@@ -78,7 +79,8 @@ set(SOURCES
 	Sources/PFGoldfish.cpp
 	Sources/PFAirbubble.cpp
 	Sources/PFThread.cpp
-	Sources/PFPrey.cpp)
+	Sources/PFPrey.cpp
+	Sources/PFMessage.cpp)
 
 set(HEADERS
 	Sources/PFApplication.h
@@ -89,7 +91,8 @@ set(HEADERS
 	Sources/PFGoldfish.h
 	Sources/PFAirbubble.h
 	Sources/PFThread.h
-	Sources/PFPrey.h)
+	Sources/PFPrey.h
+	Sources/PFMessage.h)
 
 set(RESOURCES
 	manifest.json
@@ -103,7 +106,8 @@ else()
     add_executable(ProjectFriendship "${SOURCES}" "${HEADERS}")
 endif()
 
-target_include_directories(ProjectFriendship PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Sources)
+target_include_directories(ProjectFriendship PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Sources ${CMAKE_CURRENT_SOURCE_DIR}/Vendor/stb_truetype ${CMAKE_CURRENT_SOURCE_DIR}/Vendor/Kalligraph/Sources)
+target_link_libraries(ProjectFriendship Kalligraph)
 
 set(ADDITIONAL_RESOURCE_COPY_PARAMS "")
 rayne_copy_resources(ProjectFriendship "${RESOURCES}" "${ADDITIONAL_RESOURCE_COPY_PARAMS}")

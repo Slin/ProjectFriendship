@@ -171,6 +171,7 @@ namespace PF
 		handController[1].position = cameraSnapRotation.GetRotatedVector(handController[1].position);
 		//handController[1].velocityLinear = cameraSnapRotation.GetRotatedVector(handController[1].velocityLinear);
 		
+		bool wasFirstFrame = _isFirstFrame;
 		if(_isFirstFrame || didSnapTurn)
 		{
 			_previousHandPosition[0] = handController[0].position;
@@ -438,6 +439,13 @@ namespace PF
 				{
 					_eggCounter = 0;
 					_eggsEntity->SetScale(RN::Vector3(1.0f, 1.0f, 1.0f));
+					
+					Message *message = world->GetMessage();
+					message->ShowMessage(RNCSTR("The end."), 5.0f, [&](){
+						message->ShowMessage(RNCSTR("Keep playing if you want or just quit the game."), 5.0f, [&](){
+							
+						});
+					});
 				}
 			}
 		}
@@ -467,5 +475,13 @@ namespace PF
 		
 		float size = _eggCounter * 0.2f + 1.0f;
 		_eggsEntity->SetScale(RN::Vector3(size, size, size));
+		
+		if(_eggCounter == 5)
+		{
+			Message *message = World::GetSharedInstance()->GetMessage();
+			message->ShowMessage(RNCSTR("You need a big air bubble to lay eggs in it."), 10.0f, [&](){
+				
+			});
+		}
 	}
 }

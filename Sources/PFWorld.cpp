@@ -81,10 +81,37 @@ namespace PF
 		
 		LoadLevel();
 		
+		_message = new Message();
+		AddNode(_message);
+		
 		_player = new Player();
 		AddNode(_player->Autorelease());
 		_player->SetWorldPosition(RN::Vector3(968.0f, -200.0f, -980.0f));
 		_cameraManager.SetFreeCamera(false);
+		
+		_player->GetHead()->AddChild(_message);
+		
+		_message->ShowMessage(RNCSTR("Walk around using the thumbsticks."), 5.0f, [&](){
+			_message->ShowMessage(RNCSTR("Hold both grab buttons and push yourself up while letting go to jump."), 5.0f, [&](){
+				_message->ShowMessage(RNCSTR("Swim by doing swimming motions with your hands."), 5.0f, [&](){
+					_message->ShowMessage(RNCSTR("Shoot nets from your hands using trigger."), 5.0f, [&](){
+						_message->ShowMessage(RNCSTR("Keep trigger pressed to hold on to it."), 5.0f, [&](){
+							_message->ShowMessage(RNCSTR("Now press A or X to pull in towards the attach point."), 5.0f, [&](){
+								_message->ShowMessage(RNCSTR("Nets only have a very short range, but can have any length."), 5.0f, [&](){
+									_message->ShowMessage(RNCSTR("You can collect air bubbles on the surface."), 5.0f, [&](){
+										_message->ShowMessage(RNCSTR("Drop them by pressing B or Y."), 5.0f, [&](){
+											_message->ShowMessage(RNCSTR("Now build a spider web and fill it with air!"), 8.0f, [&](){
+												
+											});
+										});
+									});
+								});
+							});
+						});
+					});
+				});
+			});
+		});
 		
 		while(_preyCounter < 10)
 		{
@@ -258,6 +285,18 @@ namespace PF
 	void World::AddStaticAirbubble(Airbubble *airbubble)
 	{
 		_staticAirbubbles->AddObject(airbubble);
+		
+		if(_staticAirbubbles->GetCount() == 1)
+		{
+			Message *message = World::GetSharedInstance()->GetMessage();
+			message->ShowMessage(RNCSTR("Increase the size by bringing more air."), 5.0f, [&](){
+				message->ShowMessage(RNCSTR("You need the air of two big ones to use it for food."), 5.0f, [&](){
+					message->ShowMessage(RNCSTR("Once it is big enough, go hunt and bring your prey back here."), 5.0f, [&](){
+						
+					});
+				});
+			});
+		}
 	}
 
 	void World::RemoveAllLevelNodes()
