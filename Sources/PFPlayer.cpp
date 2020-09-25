@@ -376,14 +376,14 @@ namespace PF
 					_activeThread[i] = new Thread();
 					world->AddLevelNode(_activeThread[i]);
 					_activeThread[i]->SetPosition(handPosition, false);
-					_activeThread[i]->Shoot(handForward*10.0f, false);
+					_activeThread[i]->Shoot(handForward*10.0f + _currentSwimDirection, false);
 				}
 				
 				_activeThread[i]->SetPosition(handPosition, true);
 			}
 			else if(_activeThread[i])
 			{
-				_activeThread[i]->Shoot(handForward*10.0f, true);
+				_activeThread[i]->Shoot(handForward*10.0f + _currentSwimDirection, true);
 				_activeThread[i] = nullptr;
 			}
 		}

@@ -125,5 +125,7 @@ namespace PF
 		_physicsBody->SetEnableKinematic(true);
 		SetWorldRotation(RN::Vector3(0.0f, 0.0f, 0.0f));
 		_rotationChangeTimer = -1.0f;
+		
+		_energy = 1.0f;
 	}
 }
