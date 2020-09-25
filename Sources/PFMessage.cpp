@@ -12,7 +12,7 @@
 #define STBTT_STATIC
 #include "stb_truetype.h"
 
-#define FONT_SIZE 0.2f
+#define FONT_SIZE 0.15f
 #define TEXT_DISTANCE 3.0f
 
 namespace PF
