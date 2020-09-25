@@ -113,7 +113,8 @@ namespace PF
 					{
 						World::GetSharedInstance()->GetPlayer()->Eat();
 						if(_holdingThread) _holdingThread->SetPrey(nullptr);
-						World::GetSharedInstance()->RemoveLevelNode(this);
+						ReleasePrey();
+						SetWorldPosition(RN::Vector3(0.0f, 1000.0f, 0.0f));
 					}
 				}
 			}

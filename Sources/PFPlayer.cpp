@@ -79,8 +79,6 @@ namespace PF
 		box2LODStage->AddMesh(box2Mesh, boxMaterial);
 		_debugBox2 = new RN::Entity(box2Model->Autorelease());
 		World::GetSharedInstance()->AddLevelNode(_debugBox2->Autorelease());
-
-		//_bodyEntity->AddFlags(RN::SceneNode::Flags::Hidden);
 	}
 	
 	Player::~Player()
@@ -188,6 +186,8 @@ namespace PF
 			//Crawling with thumbstick
 			if(!_isSwimming)
 			{
+				_currentSwimDirection = RN::Vector3();
+				
 				globalMovement = handController[0].rotation.GetRotatedVector(RN::Vector3(handController[0].thumbstick.x, 0.0f, -handController[0].thumbstick.y));
 				globalMovement.y = 0.0f;
 				globalMovement = baseRotationWithoutYaw.GetRotatedVector(globalMovement);

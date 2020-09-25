@@ -24,8 +24,8 @@ namespace PF
 		bool AddAir(RN::Vector3 worldPosition, float radius);
 		
 		bool IsInside(RN::Vector3 worldPosition);
-		bool CanEat() const { return _currentVolume > 25; }
-		bool CanBreed() const { return _currentVolume > 100; }
+		bool CanEat() const { return _currentVolume > 300; }
+		bool CanBreed() const { return _currentVolume > 600; }
 		
 	private:
 		void SimulateAir();
