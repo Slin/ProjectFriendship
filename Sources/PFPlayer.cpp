@@ -159,7 +159,6 @@ namespace PF
 		handController[1].position = cameraSnapRotation.GetRotatedVector(handController[1].position);
 		//handController[1].velocityLinear = cameraSnapRotation.GetRotatedVector(handController[1].velocityLinear);
 		
-		bool wasFirstFrame = _isFirstFrame;
 		if(_isFirstFrame || didSnapTurn)
 		{
 			_previousHandPosition[0] = handController[0].position;
