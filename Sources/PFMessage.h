@@ -37,9 +37,9 @@ namespace PF
 		
 		std::function<void(void)> _callback;
 		
-		static std::map<int, RN::Model*> _characters;
-		static RN::Material *_textMaterial;
-		static stbtt_fontinfo _font;
+		std::map<int, RN::Model*> _characters;
+		RN::Material *_textMaterial;
+		stbtt_fontinfo _font;
 
 		RNDeclareMeta(Message)
 	};

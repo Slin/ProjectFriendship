@@ -19,27 +19,21 @@ namespace PF
 {
 	RNDefineMeta(Message, RN::SceneNode)
 
-	std::map<int, RN::Model*> Message::_characters;
-	RN::Material *Message::_textMaterial = nullptr;
-	stbtt_fontinfo Message::_font;
-
 	Message::Message()
 	{
-		if(!_textMaterial)
-		{
-			RN::Shader::Options *shaderOptions = RN::Shader::Options::WithNone();
-			shaderOptions->AddDefine(RNCSTR("RN_UV0"), RNCSTR("1"));
-			shaderOptions->EnableAlpha();
-			RN::Shader *vertexShader = World::GetSharedInstance()->GetShaderLibrary()->GetShaderWithName(RNCSTR("text_vertex"), shaderOptions);
-			RN::Shader *fragmentShader = World::GetSharedInstance()->GetShaderLibrary()->GetShaderWithName(RNCSTR("text_fragment"), shaderOptions);
-			
-			_textMaterial = RN::Material::WithShaders(vertexShader, fragmentShader)->Retain();
-			_textMaterial->SetAlphaToCoverage(true);
-			_textMaterial->SetCullMode(RN::CullMode::None);
-			
-			RN::Data *fontData = RN::Data::WithContentsOfFile(RNCSTR("fonts/NotoSans-Regular.ttf"));
-			stbtt_InitFont(&_font, fontData->GetBytes<unsigned char>(), stbtt_GetFontOffsetForIndex(fontData->GetBytes<unsigned char>(), 0));
-		}
+		RN::Shader::Options *shaderOptions = RN::Shader::Options::WithNone();
+		shaderOptions->AddDefine(RNCSTR("RN_UV0"), RNCSTR("1"));
+		shaderOptions->EnableAlpha();
+		RN::Shader *vertexShader = World::GetSharedInstance()->GetShaderLibrary()->GetShaderWithName(RNCSTR("text_vertex"), shaderOptions);
+		RN::Shader *fragmentShader = World::GetSharedInstance()->GetShaderLibrary()->GetShaderWithName(RNCSTR("text_fragment"), shaderOptions);
+		
+		_textMaterial = RN::Material::WithShaders(vertexShader, fragmentShader)->Retain();
+		_textMaterial->SetAlphaToCoverage(true);
+		_textMaterial->SetCullMode(RN::CullMode::None);
+		
+		RN::Data *fontData = RN::Data::WithContentsOfFile(RNCSTR("fonts/NotoSans-Regular.ttf"));
+		fontData->Retain();
+		stbtt_InitFont(&_font, fontData->GetBytes<unsigned char>(), stbtt_GetFontOffsetForIndex(fontData->GetBytes<unsigned char>(), 0));
 		
 		AddFlags(RN::SceneNode::Flags::Hidden);
 	}
