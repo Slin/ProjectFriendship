@@ -31,12 +31,8 @@ namespace PF
 		//Create the body entity
 		_bodyModel = RN::Model::WithName(RNCSTR("models/player.sgm"));
 		_bodyModel = World::GetSharedInstance()->AssignShader(_bodyModel, Types::MaterialPlayer);
-		//_bodyModel->SetSkeleton(_bodyModel->GetSkeleton()->Copy());
 		_bodyEntity = new RN::Entity(_bodyModel);
 		AddChild(_bodyEntity->Autorelease());
-
-		//_bodyEntity->SetScale(RN::Vector3(20.0f, 20.0f, 20.0f));
-		//_bodyEntity->GetModel()->GetSkeleton()->SetAnimation(RNCSTR("walk_fixed"));
 		
 		_airBubbleEntity = new RN::Entity(World::GetSharedInstance()->AssignShader(RN::Model::WithName(RNCSTR("models/airbubble.sgm")), Types::MaterialAirbubble));
 		_bodyEntity->AddChild(_airBubbleEntity->Autorelease());
@@ -65,20 +61,12 @@ namespace PF
 			_previousHeadPosition = headCamera->GetPosition();
 		}
 
-		RN::Mesh *box1Mesh = RN::Mesh::WithColoredCube(RN::Vector3(0.01f, 0.05f, 0.05f), RN::Color::WithRGBA(1.0f, 0.0f, 0.0f));
-		RN::Material *boxMaterial = RN::Material::WithShaders(RN::Renderer::GetActiveRenderer()->GetDefaultShader(RN::Shader::Type::Vertex, RN::Shader::Options::WithMesh(box1Mesh)), RN::Renderer::GetActiveRenderer()->GetDefaultShader(RN::Shader::Type::Fragment, RN::Shader::Options::WithMesh(box1Mesh)));
-		RN::Model *box1Model = new RN::Model();
-		RN::Model::LODStage *box1LODStage = box1Model->AddLODStage(100000.0f);
-		box1LODStage->AddMesh(box1Mesh, boxMaterial);
-		_debugBox1 = new RN::Entity(box1Model->Autorelease());
-		World::GetSharedInstance()->AddLevelNode(_debugBox1->Autorelease());
+		RN::Model *handModel = World::GetSharedInstance()->AssignShader(RN::Model::WithName(RNCSTR("models/player_hand.sgm")), Types::MaterialPlayer);
+		_handEntity[0] = new RN::Entity(handModel);
+		World::GetSharedInstance()->AddLevelNode(_handEntity[0]->Autorelease());
 
-		RN::Mesh *box2Mesh = RN::Mesh::WithColoredCube(RN::Vector3(0.01f, 0.05f, 0.05f), RN::Color::WithRGBA(0.0f, 1.0f, 0.0f));
-		RN::Model *box2Model = new RN::Model();
-		RN::Model::LODStage *box2LODStage = box2Model->AddLODStage(100000.0f);
-		box2LODStage->AddMesh(box2Mesh, boxMaterial);
-		_debugBox2 = new RN::Entity(box2Model->Autorelease());
-		World::GetSharedInstance()->AddLevelNode(_debugBox2->Autorelease());
+		_handEntity[1] = new RN::Entity(handModel);
+		World::GetSharedInstance()->AddLevelNode(_handEntity[1]->Autorelease());
 	}
 	
 	Player::~Player()
@@ -346,10 +334,10 @@ namespace PF
 			vrCamera->SetWorldRotation(GetWorldRotation());
 			vrCamera->SetWorldPosition(GetWorldPosition() - vrCamera->GetWorldRotation().GetRotatedVector(vrCamera->GetHead()->GetPosition()));
 			
-			_debugBox1->SetWorldPosition(vrCamera->GetWorldPosition() + baseRotationWithoutYaw.GetRotatedVector(handController[0].position));
-			_debugBox2->SetWorldPosition(vrCamera->GetWorldPosition() + baseRotationWithoutYaw.GetRotatedVector(handController[1].position));
-			_debugBox1->SetWorldRotation(baseRotationWithoutYaw * handController[0].rotation);
-			_debugBox2->SetWorldRotation(baseRotationWithoutYaw * handController[1].rotation);
+			_handEntity[0]->SetWorldPosition(vrCamera->GetWorldPosition() + baseRotationWithoutYaw.GetRotatedVector(handController[0].position));
+			_handEntity[1]->SetWorldPosition(vrCamera->GetWorldPosition() + baseRotationWithoutYaw.GetRotatedVector(handController[1].position));
+			_handEntity[0]->SetWorldRotation(baseRotationWithoutYaw * handController[0].rotation);
+			_handEntity[1]->SetWorldRotation(baseRotationWithoutYaw * handController[1].rotation);
 		}
 		else
 		{
@@ -441,8 +429,9 @@ namespace PF
 					_eggsEntity->SetScale(RN::Vector3(1.0f, 1.0f, 1.0f));
 					
 					Message *message = world->GetMessage();
-					message->ShowMessage(RNCSTR("The end."), 5.0f, [&](){
-						message->ShowMessage(RNCSTR("Keep playing if you want or just quit the game."), 5.0f, [&](){
+					message->ShowMessage(RNCSTR("The end."), 5.0f, [](){
+						Message *message = World::GetSharedInstance()->GetMessage();
+						message->ShowMessage(RNCSTR("Keep playing if you want or just quit the game."), 5.0f, [](){
 							
 						});
 					});

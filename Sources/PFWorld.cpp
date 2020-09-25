@@ -289,9 +289,11 @@ namespace PF
 		if(_staticAirbubbles->GetCount() == 1)
 		{
 			Message *message = World::GetSharedInstance()->GetMessage();
-			message->ShowMessage(RNCSTR("Increase the size by bringing more air."), 5.0f, [&](){
-				message->ShowMessage(RNCSTR("You need the air of two big ones to use it for food."), 5.0f, [&](){
-					message->ShowMessage(RNCSTR("Once it is big enough, go hunt and bring your prey back here."), 5.0f, [&](){
+			message->ShowMessage(RNCSTR("Increase the size by bringing more air."), 5.0f, [](){
+				Message *message = World::GetSharedInstance()->GetMessage();
+				message->ShowMessage(RNCSTR("You need the air of two big ones to use it for food."), 5.0f, [](){
+					Message *message = World::GetSharedInstance()->GetMessage();
+					message->ShowMessage(RNCSTR("Once it is big enough, go hunt and bring your prey back here."), 5.0f, [](){
 						
 					});
 				});

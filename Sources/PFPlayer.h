@@ -50,8 +50,7 @@ namespace PF
 		RN::Vector3 _previousHeadPosition;
 		RN::Vector3 _previousHandPosition[2];
 		
-		RN::Entity *_debugBox1;
-		RN::Entity *_debugBox2;
+		RN::Entity *_handEntity[2];
 		
 		Thread *_activeThread[2];
 		
