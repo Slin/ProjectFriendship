@@ -12,7 +12,7 @@ namespace PF
 {
 	RNDefineMeta(Thread, RN::Entity)
 
-	Thread::Thread() : _floatingTimer(0.0f), _stickyTimer{0.0f, 0.0f}, _isAnchored{true, true}, _physicsBody(nullptr), _isOwnedByPlayer(true)
+	Thread::Thread() : _floatingTimer(0.0f), _stickyTimer{0.0f, 0.0f}, _isAnchored{true, true}, _physicsBody(nullptr), _isOwnedByPlayer(true), _anchoredPrey(nullptr)
 	{
 		World *world = World::GetSharedInstance();
 		RN::Model *model = world->AssignShader(RN::Model::WithName(RNCSTR("models/thread.sgm")), Types::MaterialDefault);
@@ -39,12 +39,18 @@ namespace PF
 			_stickyTimer[i] += delta;
 			if(!_isAnchored[i] && _stickyTimer[i] < 2.0f)
 			{
-				const RN::PhysXContactInfo &contact = physicsWorld->CastRay(_position[i], _position[i] + _movement[i] * delta, Types::CollisionAll);
+				const RN::PhysXContactInfo &contact = physicsWorld->CastRay(_position[i], _position[i] + _movement[i] * delta, Types::CollisionThreadMask);
 				if(contact.distance >= 0.0f)
 				{
 					_isAnchored[i] = true;
 					_movement[i] = RN::Vector3();
 					_position[i] = contact.position;
+					
+					if(contact.node && contact.node->IsKindOfClass(Prey::GetMetaClass()))
+					{
+						Prey *prey = contact.node->Downcast<Prey>();
+						_anchoredPrey = prey;
+					}
 				}
 			}
 		}
@@ -55,11 +61,17 @@ namespace PF
 		_movement[0] *= std::max((1.0f - delta * 1.0f), 0.0f);
 		_movement[1] *= std::max((1.0f - delta * 1.0f), 0.0f);
 		
+		if(_anchoredPrey)
+		{
+			_position[0] = _anchoredPrey->GetWorldPosition();
+			_anchoredPrey->Catch(_position[1]);
+		}
+		
 		SetWorldPosition(_position[0]);
 		LookAt(_position[1], false);
 		SetScale(RN::Vector3(1.0f, 1.0f, _position[0].GetDistance(_position[1])));
 		
-		if(!_isOwnedByPlayer && _isAnchored[0] && _isAnchored[1] && !_physicsBody && GetScale().z > RN::k::EpsilonFloat)
+		if(!_isOwnedByPlayer && _isAnchored[0] && _isAnchored[1] && !_physicsBody && GetScale().z > RN::k::EpsilonFloat && !_anchoredPrey)
 		{
 			RN::PhysXMaterial *physicsMaterial = new RN::PhysXMaterial();
 			_physicsBody = RN::PhysXStaticBody::WithShape(RN::PhysXCapsuleShape::WithRadius(0.04f, GetScale().z, physicsMaterial->Autorelease()));
@@ -69,7 +81,7 @@ namespace PF
 			AddAttachment(_physicsBody);
 		}
 		
-		if(!_isOwnedByPlayer && (!_isAnchored[0] || !_isAnchored[1]))
+		if(!_isOwnedByPlayer && ((!_isAnchored[0] || !_isAnchored[1]) || (_anchoredPrey && _isAnchored[1])))
 		{
 			_floatingTimer += delta;
 			if(_floatingTimer > 5.0f)
@@ -113,7 +125,16 @@ namespace PF
 
 	void Thread::Destroy()
 	{
+		if(_anchoredPrey) _anchoredPrey->ReleasePrey();
 		World::GetSharedInstance()->GetPlayer()->ResetThread(this);
 		World::GetSharedInstance()->RemoveLevelNode(this);
+	}
+
+	void Thread::SetPrey(Prey *prey)
+	{
+		if(!_isAnchored[0] && _stickyTimer[0] < 2.0f)
+		{
+			_anchoredPrey = prey;
+		}
 	}
 }

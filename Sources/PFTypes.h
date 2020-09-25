@@ -21,10 +21,12 @@ namespace PF
 			CollisionThread = 1 << 2,
 			CollisionAirbubble = 1 << 3,
 			CollisionPlayer = 1 << 4,
+			CollisionPrey = 1 << 5,
 
 			CollisionAll = 0xffffffff,
 			CollisionPlayerMask = CollisionLevel|CollisionPlants,
-			CollisionGravityMask = CollisionLevel
+			CollisionGravityMask = CollisionLevel,
+			CollisionThreadMask = CollisionLevel|CollisionPlants|CollisionThread|CollisionPrey
 		};
 		
 		enum MaterialType

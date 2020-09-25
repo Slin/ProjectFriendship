@@ -37,7 +37,7 @@ namespace PF
 		//RN::Kernel::GetSharedInstance()->Exit();
 	}
 
-	World::World(RN::VRWindow *vrWindow) : _vrWindow(nullptr), _physicsWorld(nullptr), _isPaused(false), _isDash(false), _shaderLibrary(nullptr)
+	World::World(RN::VRWindow *vrWindow) : _vrWindow(nullptr), _physicsWorld(nullptr), _isPaused(false), _isDash(false), _shaderLibrary(nullptr), _preyCounter(0)
 	{
 		_sharedInstance = this;
 
@@ -72,19 +72,24 @@ namespace PF
 		pvdServerIP = RNCSTR("192.168.178.22");
 	#endif
 #endif
-		_physicsWorld = new RN::PhysXWorld(RN::Vector3(0.0f, -9.81f, 0.0f), pvdServerIP);
+		_physicsWorld = new RN::PhysXWorld(RN::Vector3(0.0f, 0.0f, 0.0f), pvdServerIP);
 		AddAttachment(_physicsWorld->Autorelease());
 		
 		RN::PhysXMaterial *physicsMaterial = new RN::PhysXMaterial();
 		_voxelOverlapShape = RN::PhysXBoxShape::WithHalfExtents(RN::Vector3(1.0f/3.0f, 1.0f/3.0f, 1.0f/3.0f), physicsMaterial->Autorelease());
 		_voxelOverlapShape->Retain();
-
+		
 		LoadLevel();
 		
 		_player = new Player();
 		AddNode(_player->Autorelease());
 		_player->SetWorldPosition(RN::Vector3(968.0f, -200.0f, -980.0f));
 		_cameraManager.SetFreeCamera(false);
+		
+		while(_preyCounter < 10)
+		{
+			CreatePrey();
+		}
 	}
 
 	void World::DidBecomeActive()
@@ -286,6 +291,39 @@ namespace PF
 	{
 		const std::vector<RN::PhysXContactInfo> &results = _physicsWorld->CheckOverlap(_voxelOverlapShape, position, rotation);
 		return results.size() > 0;
+	}
+
+	void World::AddPrey()
+	{
+		_preyCounter += 1;
+	}
+
+	void World::RemovePrey()
+	{
+		_preyCounter -= 1;
+		
+		if(_preyCounter < 100)
+		{
+			CreatePrey();
+		}
+	}
+
+	void World::CreatePrey()
+	{
+		Prey *prey = new Prey(AssignShader(RN::Model::WithName(RNCSTR("models/daphnia.sgm")), Types::MaterialDefault));
+		
+		prey->SetWorldPosition(_player->GetWorldPosition() + RN::RandomNumberGenerator::GetSharedGenerator()->GetRandomVector3Range(RN::Vector3(-200.0f, 10.0f, -200.0f), RN::Vector3(200.0f, 10.0f, 200.0f)));
+		prey->SetWorldRotation(RN::RandomNumberGenerator::GetSharedGenerator()->GetRandomVector3Range(RN::Vector3(0.0f, 0.0f, 0.0f), RN::Vector3(360.0f, 0.0f, 0.0f)));
+		
+		const RN::PhysXContactInfo &contact = _physicsWorld->CastRay(prey->GetWorldPosition(), prey->GetWorldPosition() - RN::Vector3(0.0f, 10000.0f, 0.0f), Types::CollisionLevel);
+		if(contact.position.y < -21.0f && contact.distance > 0.0f)
+		{
+			AddLevelNode(prey);
+			
+			prey->SetWorldPosition(contact.position + RN::Vector3(0.0f, RN::RandomNumberGenerator::GetSharedGenerator()->GetRandomFloatRange(10.0f, -21.0f - contact.position.y), 0.0f));
+		}
+		
+		prey->Release();
 	}
 
 	void World::LoadLevel()

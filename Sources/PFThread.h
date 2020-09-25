@@ -13,6 +13,7 @@
 
 namespace PF
 {
+	class Prey;
 	class Thread : public RN::Entity
 	{
 	public:
@@ -25,6 +26,7 @@ namespace PF
 		void Shoot(RN::Vector3 speed, bool isEnd);
 		
 		bool CanPull() const { return _isAnchored[0]; }
+		void SetPrey(Prey *prey);
 		
 		void Destroy();
 		
@@ -35,6 +37,8 @@ namespace PF
 		RN::Vector3 _position[2];
 		bool _isAnchored[2];
 		bool _isOwnedByPlayer;
+		
+		Prey *_anchoredPrey;
 		
 		RN::PhysXStaticBody *_physicsBody;
 

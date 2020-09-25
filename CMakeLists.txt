@@ -77,7 +77,8 @@ set(SOURCES
 	Sources/PFPlayer.cpp
 	Sources/PFGoldfish.cpp
 	Sources/PFAirbubble.cpp
-	Sources/PFThread.cpp)
+	Sources/PFThread.cpp
+	Sources/PFPrey.cpp)
 
 set(HEADERS
 	Sources/PFApplication.h
@@ -87,7 +88,8 @@ set(HEADERS
 	Sources/PFPlayer.h
 	Sources/PFGoldfish.h
 	Sources/PFAirbubble.h
-	Sources/PFThread.h)
+	Sources/PFThread.h
+	Sources/PFPrey.h)
 
 set(RESOURCES
 	manifest.json

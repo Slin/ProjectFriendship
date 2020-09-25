@@ -16,8 +16,9 @@ namespace PF
 
 	Goldfish::Goldfish(RN::Model *model) : _rotationChangeTimer(0.0f), _rotationSpeed(0.0f)
 	{
-		SetModel(World::GetSharedInstance()->MakeDeepCopy(model));
-		model->GetSkeleton()->SetAnimation(RNCSTR("swimming"));
+		SetModel(model->Copy());
+		GetModel()->SetSkeleton(model->GetSkeleton()->Copy());
+		GetModel()->GetSkeleton()->SetAnimation(RNCSTR("swimming"));
 	}
 	
 	Goldfish::~Goldfish()
@@ -44,7 +45,7 @@ namespace PF
 		World *world = World::GetSharedInstance();
 		RN::PhysXWorld *physicsWorld = world->GetPhysicsWorld();
 		
-		GetModel()->GetSkeleton()->Update(delta * 12.0f);
+		GetModel()->GetSkeleton()->Update(delta * 6.0f);
 		
 		Rotate(RN::Vector3(_rotationSpeed * delta, 0.0f, 0.0f));
 		RN::Vector3 movement = -GetForward() * MAX_SWIM_SPEED * delta;

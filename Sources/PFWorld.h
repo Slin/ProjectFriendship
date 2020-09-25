@@ -18,6 +18,7 @@
 #include "PFGoldfish.h"
 #include "PFThread.h"
 #include "PFAirbubble.h"
+#include "PFPrey.h"
 
 namespace PF
 {
@@ -46,6 +47,10 @@ namespace PF
 		void RemoveLevelNode(RN::SceneNode *node);
 		void RemoveAllLevelNodes();
 		
+		void AddPrey();
+		void RemovePrey();
+		void CreatePrey();
+		
 		void AddStaticAirbubble(Airbubble *airbubble);
 		Airbubble *FindClosestAirbubble(RN::Vector3 position, Airbubble *exclude);
 		bool DoesVoxelOverlap(RN::Vector3 position, RN::Quaternion rotation);
@@ -73,6 +78,8 @@ namespace PF
 		
 		bool _isPaused;
 		bool _isDash;
+		
+		RN::uint32 _preyCounter;
 
 		static World *_sharedInstance;
 	};

@@ -43,7 +43,7 @@ namespace PF
 		
 		if(_physicsBody)
 		{
-			_physicsBody->ApplyForce(RN::Vector3(0.0f, 15.0f, 0.0f));
+			_physicsBody->ApplyForce(RN::Vector3(0.0f, 6.0f, 0.0f));
 			_movementTimer += delta;
 			
 			if(_physicsBody->GetLinearVelocity().GetLength() < 0.1f && _movementTimer > 2.0f)
