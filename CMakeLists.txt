@@ -172,6 +172,8 @@ target_compile_definitions(ProjectFriendship PRIVATE ${PF_COMPILE_DEFINITIONS})
 if(APPLE)
 	set_target_properties(ProjectFriendship PROPERTIES MACOSX_BUNDLE TRUE)
 	set_target_properties(ProjectFriendship PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Other/Info.plist.in)
+else()
+	add_custom_command(TARGET ProjectFriendship POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE_DIR:RayneOpenAL>/OpenAL32.dll" "$<TARGET_FILE_DIR:Concealed>/OpenAL32.dll")
 endif()
 
 if(MSVC)
