@@ -46,6 +46,10 @@ namespace PF
 		void RemoveLevelNode(RN::SceneNode *node);
 		void RemoveAllLevelNodes();
 		
+		void AddStaticAirbubble(Airbubble *airbubble);
+		Airbubble *FindClosestAirbubble(RN::Vector3 position, Airbubble *exclude);
+		bool DoesVoxelOverlap(RN::Vector3 position, RN::Quaternion rotation);
+		
 		bool GetIsDash() const { return _isDash; }
 		
 		void LoadLevel();
@@ -61,9 +65,11 @@ namespace PF
 		
 		RN::ShaderLibrary *_shaderLibrary;
 		RN::Array *_levelNodes;
+		RN::Array *_staticAirbubbles;
 		Player *_player;
 
 		RN::PhysXWorld *_physicsWorld;
+		RN::PhysXBoxShape *_voxelOverlapShape;
 		
 		bool _isPaused;
 		bool _isDash;

@@ -18,7 +18,7 @@ namespace PF
 {
 	RNDefineMeta(Player, RN::SceneNode)
 
-	Player::Player() : _isFirstFrame(true), _rotateTimer(0.0f), _isSwimming(true), _headCameraTilt(0.0f), _snapRotationAngle(0.0f), _activeThread{nullptr, nullptr}, _airBubbleSize(1.0f)
+	Player::Player() : _isFirstFrame(true), _rotateTimer(0.0f), _isSwimming(false), _headCameraTilt(0.0f), _snapRotationAngle(0.0f), _activeThread{nullptr, nullptr}, _airBubbleSize(0.5f)
 	{
 		_head = new RN::SceneNode();
 		AddChild(_head->Autorelease());
@@ -388,14 +388,40 @@ namespace PF
 			}
 		}
 		
-		if(handController[0].button[RN::VRControllerTrackingState::BY] && _airBubbleSize > 0.6f)
+		if(handController[0].button[RN::VRControllerTrackingState::BY])
 		{
-			Airbubble *worldBubble = new Airbubble(_airBubbleEntity->GetWorldScale());
-			world->AddLevelNode(worldBubble->Autorelease());
-			worldBubble->SetWorldPosition(_airBubbleEntity->GetWorldPosition());
-			
-			_airBubbleSize = 0.5f;
+			if(_airBubbleSize > 0.6f)
+			{
+				Airbubble *worldBubble = new Airbubble(_airBubbleEntity->GetWorldScale());
+				world->AddLevelNode(worldBubble->Autorelease());
+				worldBubble->SetWorldPosition(_airBubbleEntity->GetWorldPosition());
+				
+				_airBubbleSize = 0.5f;
+				_airBubbleEntity->SetScale(RN::Vector3(_airBubbleSize, _airBubbleSize, _airBubbleSize));
+			}
+		}
+/*		else
+		{
+			//TODO: Remove, only here for testing!
+			_airBubbleSize = 1.3f;
 			_airBubbleEntity->SetScale(RN::Vector3(_airBubbleSize, _airBubbleSize, _airBubbleSize));
+		}*/
+		
+		if(_airBubbleSize > 0.6f)
+		{
+			Airbubble *airbubble = world->FindClosestAirbubble(_airBubbleEntity->GetWorldPosition(), nullptr);
+			if(airbubble)
+			{
+				float distance = airbubble->GetWorldPosition().GetDistance(_airBubbleEntity->GetWorldPosition());
+				if(distance < 3.0f)
+				{
+					if(airbubble->AddAir(_airBubbleEntity->GetWorldPosition(), _airBubbleSize))
+					{
+						_airBubbleSize = 0.5f;
+						_airBubbleEntity->SetScale(RN::Vector3(_airBubbleSize, _airBubbleSize, _airBubbleSize));
+					}
+				}
+			}
 		}
 		
 		_bodyEntity->SetWorldRotation(RN::Vector3(_head->GetWorldEulerAngle().x, 0.0f, 0.0f));

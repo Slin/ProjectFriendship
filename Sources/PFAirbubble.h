@@ -21,8 +21,16 @@ namespace PF
 		
 		void Update(float delta) override;
 		
+		bool AddAir(RN::Vector3 worldPosition, float radius);
+		
 	private:
+		void SimulateAir();
+		bool IsBlocked(int x, int y, int z);
+		
+		RN::uint8 _blockedGrid[15][15][15];
+		
 		RN::Entity *_floatingBubbleEntity;
+		RN::VoxelEntity *_growableBubbleEntity;
 		float _movementTimer;
 		
 		RN::PhysXDynamicBody *_physicsBody;

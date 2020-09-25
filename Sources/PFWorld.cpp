@@ -45,6 +45,7 @@ namespace PF
 			_vrWindow = vrWindow->Retain();
 		
 		_levelNodes = new RN::Array();
+		_staticAirbubbles = new RN::Array();
 	}
 
 	World::~World()
@@ -73,6 +74,10 @@ namespace PF
 #endif
 		_physicsWorld = new RN::PhysXWorld(RN::Vector3(0.0f, -9.81f, 0.0f), pvdServerIP);
 		AddAttachment(_physicsWorld->Autorelease());
+		
+		RN::PhysXMaterial *physicsMaterial = new RN::PhysXMaterial();
+		_voxelOverlapShape = RN::PhysXBoxShape::WithHalfExtents(RN::Vector3(1.0f/3.0f, 1.0f/3.0f, 1.0f/3.0f), physicsMaterial->Autorelease());
+		_voxelOverlapShape->Retain();
 
 		LoadLevel();
 		
@@ -241,7 +246,13 @@ namespace PF
 	void World::RemoveLevelNode(RN::SceneNode *node)
 	{
 		_levelNodes->RemoveObject(node);
+		_staticAirbubbles->RemoveObject(node);
 		RemoveNode(node);
+	}
+
+	void World::AddStaticAirbubble(Airbubble *airbubble)
+	{
+		_staticAirbubbles->AddObject(airbubble);
 	}
 
 	void World::RemoveAllLevelNodes()
@@ -251,6 +262,30 @@ namespace PF
 		});
 		
 		_levelNodes->RemoveAllObjects();
+		_staticAirbubbles->RemoveAllObjects();
+	}
+
+	Airbubble *World::FindClosestAirbubble(RN::Vector3 position, Airbubble *exclude)
+	{
+		float closestDistance = -1.0f;
+		Airbubble *closestBubble = nullptr;
+		_staticAirbubbles->Enumerate<Airbubble>([&](Airbubble *bubble, size_t index, bool &stop){
+			if(bubble == exclude) return;
+			float distance = bubble->GetWorldPosition().GetSquaredDistance(position);
+			if(!closestBubble || distance < closestDistance)
+			{
+				closestBubble = bubble;
+				closestDistance = distance;
+			}
+		});
+		
+		return closestBubble;
+	}
+
+	bool World::DoesVoxelOverlap(RN::Vector3 position, RN::Quaternion rotation)
+	{
+		const std::vector<RN::PhysXContactInfo> &results = _physicsWorld->CheckOverlap(_voxelOverlapShape, position, rotation);
+		return results.size() > 0;
 	}
 
 	void World::LoadLevel()

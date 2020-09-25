@@ -25,6 +25,8 @@ namespace PF
 		_physicsBody->SetCollisionFilter(Types::CollisionAirbubble, Types::CollisionAll);
 		_physicsBody->SetEnableCCD(true);
 		AddAttachment(_physicsBody);
+		
+		memset(_blockedGrid, 0, 15*15*15);
 	}
 	
 	Airbubble::~Airbubble()
@@ -48,6 +50,34 @@ namespace PF
 			{
 				RemoveAttachment(_physicsBody);
 				_physicsBody = nullptr;
+				
+				_growableBubbleEntity = new RN::VoxelEntity(15, 15, 15);
+				_growableBubbleEntity->SetMaterial(_floatingBubbleEntity->GetModel()->GetLODStage(0)->GetMaterialAtIndex(0));
+				_growableBubbleEntity->SetSphereLocal(RN::Vector3(7.5f, 7.5f, 7.5f), _floatingBubbleEntity->GetScale().x * 2.5f);
+				_growableBubbleEntity->SetScale(1.0f/3.0f);
+				_growableBubbleEntity->UpdateMesh();
+				_growableBubbleEntity->AddFlags(RN::SceneNode::Flags::DrawLater);
+				AddChild(_growableBubbleEntity->Autorelease());
+				
+				World::GetSharedInstance()->AddStaticAirbubble(this);
+				
+				RemoveChild(_floatingBubbleEntity);
+				_floatingBubbleEntity = nullptr;
+			}
+			else
+			{
+				Airbubble *otherBubble = World::GetSharedInstance()->FindClosestAirbubble(GetWorldPosition(), this);
+				if(otherBubble)
+				{
+					float distance = otherBubble->GetWorldPosition().GetDistance(GetWorldPosition());
+					if(distance < 3.0f)
+					{
+						if(otherBubble->AddAir(GetWorldPosition(), _floatingBubbleEntity->GetScale().x * 0.8f))
+						{
+							World::GetSharedInstance()->RemoveLevelNode(this);
+						}
+					}
+				}
 			}
 		}
 		
@@ -57,5 +87,62 @@ namespace PF
 		}
 
 		SceneNode::Update(delta);
+	}
+
+	bool Airbubble::AddAir(RN::Vector3 worldPosition, float radius)
+	{
+		if(!_growableBubbleEntity) return false;
+		
+		RN::Vector3 offset(_growableBubbleEntity->GetResolutionX() * 0.5f, _growableBubbleEntity->GetResolutionY() * 0.5f, _growableBubbleEntity->GetResolutionZ() * 0.5f);
+		RN::Vector3 position = _growableBubbleEntity->GetWorldRotation().Conjugate().GetRotatedVector(worldPosition - _growableBubbleEntity->GetWorldPosition()) / _growableBubbleEntity->GetWorldScale();
+		position += offset;
+		radius = radius / GetWorldScale().GetMin();
+		
+		position.x = std::fminf(std::fmaxf(position.x, 0.0f), _growableBubbleEntity->GetResolutionX());
+		position.y = std::fminf(std::fmaxf(position.y, 0.0f), _growableBubbleEntity->GetResolutionY());
+		position.z = std::fminf(std::fmaxf(position.z, 0.0f), _growableBubbleEntity->GetResolutionZ());
+		
+		for(RN::uint32 x = position.x - radius; x < position.x + radius; x++)
+		{
+			for(RN::uint32 y = position.y - radius; y < position.y + radius; y++)
+			{
+				for(RN::uint32 z = position.z - radius; z < position.z + radius; z++)
+				{
+					if(_growableBubbleEntity->GetVoxel(x, y, z) > 127)
+					{
+						_growableBubbleEntity->SetSphere(worldPosition, radius);
+						_growableBubbleEntity->UpdateMesh();
+						
+						return true;
+					}
+				}
+			}
+		}
+		
+		return false;
+	}
+
+	void Airbubble::SimulateAir()
+	{
+		
+	}
+
+	bool Airbubble::IsBlocked(int x, int y, int z)
+	{
+		if(_blockedGrid[x][y][z])
+		{
+			return true;
+		}
+		
+		RN::Vector3 offset(_growableBubbleEntity->GetResolutionX() * 0.5f, _growableBubbleEntity->GetResolutionY() * 0.5f, _growableBubbleEntity->GetResolutionZ() * 0.5f);
+		RN::Vector3 worldPosition(x, y, z);
+		worldPosition -= offset;
+		worldPosition *= GetWorldScale();
+		worldPosition = GetWorldRotation().GetRotatedVector(worldPosition);
+		worldPosition += GetWorldPosition();
+		
+		_blockedGrid[x][y][z] = World::GetSharedInstance()->DoesVoxelOverlap(worldPosition, GetWorldRotation());
+		
+		return _blockedGrid[x][y][z];
 	}
 }
