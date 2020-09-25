@@ -121,7 +121,7 @@ namespace PF
 		
 		RN::String *foundOutputAudioDevice = nullptr;
 #if RN_PLATFORM_WINDOWS
-		if(_vrWindow)// && _vrWindow->IsKindOfClass(RN::OculusWindow::GetMetaClass()))
+/*		if(_vrWindow)// && _vrWindow->IsKindOfClass(RN::OculusWindow::GetMetaClass()))
 		{
 			RN::Array *outputAudioDevices = RN::OpenALWorld::GetOutputDeviceNames();
 			outputAudioDevices->Enumerate<RN::String>([&foundOutputAudioDevice](RN::String *string, size_t index, bool &stop) {
@@ -130,7 +130,7 @@ namespace PF
 					foundOutputAudioDevice = string;
 				}
 			});
-		}
+		}*/
 #endif
 
 		_audioWorld = new RN::OpenALWorld(foundOutputAudioDevice);

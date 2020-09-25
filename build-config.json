@@ -25,6 +25,7 @@
 	],
 	"keystore~android": "../../AndroidReleaseKeyStore",
 	"appinfo-file-oculus": "Other/appinfo-oculus.json",
+	"appname-itchio": "water-spider-simulator",
 	"dependencies":
 	{
 		
