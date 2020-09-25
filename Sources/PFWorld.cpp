@@ -93,15 +93,15 @@ namespace PF
 		_player->GetHead()->AddChild(_message);
 		
 		_message->ShowMessage(RNCSTR("Walk around using the thumbsticks."), 5.0f, [&](){
-			_message->ShowMessage(RNCSTR("Hold both grab buttons and push yourself up while letting go to jump."), 5.0f, [&](){
-				_message->ShowMessage(RNCSTR("Swim by doing swimming motions with your hands."), 5.0f, [&](){
-					_message->ShowMessage(RNCSTR("Shoot nets from your hands using trigger."), 5.0f, [&](){
-						_message->ShowMessage(RNCSTR("Keep trigger pressed to hold on to it."), 5.0f, [&](){
+			_message->ShowMessage(RNCSTR("Throw yourself up using bith grabs to jump."), 5.0f, [&](){
+				_message->ShowMessage(RNCSTR("Swim with your hands."), 5.0f, [&](){
+					_message->ShowMessage(RNCSTR("Shoot nets with trigger."), 5.0f, [&](){
+						_message->ShowMessage(RNCSTR("Hold trigger to shoot and stay attached."), 5.0f, [&](){
 							_message->ShowMessage(RNCSTR("Now press A or X to pull in towards the attach point."), 5.0f, [&](){
-								_message->ShowMessage(RNCSTR("Nets only have a very short range, but can have any length."), 5.0f, [&](){
+								_message->ShowMessage(RNCSTR("Nets only have a very short range to attach."), 5.0f, [&](){
 									_message->ShowMessage(RNCSTR("You can collect air bubbles on the surface."), 5.0f, [&](){
 										_message->ShowMessage(RNCSTR("Drop them by pressing B or Y."), 5.0f, [&](){
-											_message->ShowMessage(RNCSTR("Now build a spider web and fill it with air!"), 8.0f, [&](){
+											_message->ShowMessage(RNCSTR("Now build a spider web and fill it with air!"), 10.0f, [&](){
 												
 											});
 										});
@@ -125,7 +125,7 @@ namespace PF
 		{
 			RN::Array *outputAudioDevices = RN::OpenALWorld::GetOutputDeviceNames();
 			outputAudioDevices->Enumerate<RN::String>([&foundOutputAudioDevice](RN::String *string, size_t index, bool &stop) {
-				if (string->GetRangeOfString(RNCSTR("Rift Audio")).length > 0)
+				if(string->GetRangeOfString(RNCSTR("Rift Audio")).length > 0)
 				{
 					foundOutputAudioDevice = string;
 				}

@@ -474,7 +474,7 @@ namespace PF
 		if(_eggCounter == 5)
 		{
 			Message *message = World::GetSharedInstance()->GetMessage();
-			message->ShowMessage(RNCSTR("You need a big air bubble to lay eggs in it."), 10.0f, [&](){
+			message->ShowMessage(RNCSTR("You need more space to lay your eggs."), 10.0f, [&](){
 				
 			});
 		}
