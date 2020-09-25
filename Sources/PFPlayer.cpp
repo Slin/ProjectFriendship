@@ -18,7 +18,7 @@ namespace PF
 {
 	RNDefineMeta(Player, RN::SceneNode)
 
-	Player::Player() : _isFirstFrame(true), _rotateTimer(0.0f), _isSwimming(false), _headCameraTilt(0.0f), _snapRotationAngle(0.0f), _activeThread{nullptr, nullptr}, _airBubbleSize(0.5f)
+	Player::Player() : _isFirstFrame(true), _rotateTimer(0.0f), _isSwimming(false), _headCameraTilt(0.0f), _snapRotationAngle(0.0f), _activeThread{nullptr, nullptr}, _airBubbleSize(0.5f), _eggCounter(0)
 	{
 		_head = new RN::SceneNode();
 		AddChild(_head->Autorelease());
@@ -40,9 +40,13 @@ namespace PF
 		
 		_airBubbleEntity = new RN::Entity(World::GetSharedInstance()->AssignShader(RN::Model::WithName(RNCSTR("models/airbubble.sgm")), Types::MaterialAirbubble));
 		_bodyEntity->AddChild(_airBubbleEntity->Autorelease());
-		_airBubbleEntity->SetPosition(RN::Vector3(0.0f, -0.8f, 0.3f));
+		_airBubbleEntity->SetPosition(RN::Vector3(0.0f, -0.8f, 0.25f));
 		_airBubbleEntity->AddFlags(RN::Entity::Flags::DrawLate);
 		_airBubbleEntity->SetScale(RN::Vector3(_airBubbleSize, _airBubbleSize, _airBubbleSize));
+		
+		_eggsEntity = new RN::Entity(World::GetSharedInstance()->AssignShader(RN::Model::WithName(RNCSTR("models/eggs.sgm")), Types::MaterialPlayer));
+		_bodyEntity->AddChild(_eggsEntity->Autorelease());
+		_eggsEntity->SetPosition(RN::Vector3(0.0f, -0.8f, 0.25f));
 		
 		World *world = World::GetSharedInstance();
 		RN::VRCamera *vrCamera = world->GetVRCamera();
@@ -268,7 +272,7 @@ namespace PF
 					_airBubbleSize += swimInput.y * delta;
 					_airBubbleSize = std::min(_airBubbleSize, 1.3f);
 					
-					_airBubbleEntity->SetScale(RN::Vector3(_airBubbleSize, _airBubbleSize, _airBubbleSize));
+					_airBubbleEntity->SetScale(RN::Vector3(_airBubbleSize, _airBubbleSize, _airBubbleSize) * _eggsEntity->GetScale().x);
 				}
 				
 				if(!isPulling)
@@ -424,6 +428,20 @@ namespace PF
 			}
 		}
 		
+		if(_eggCounter >= 5)
+		{
+			Airbubble *airbubble = world->FindClosestAirbubble(_airBubbleEntity->GetWorldPosition(), nullptr);
+			if(airbubble && airbubble->CanBreed())
+			{
+				float distance = airbubble->GetWorldPosition().GetDistance(_airBubbleEntity->GetWorldPosition());
+				if(distance < 3.0f && airbubble->IsInside(GetWorldPosition()))
+				{
+					_eggCounter = 0;
+					_eggsEntity->SetScale(RN::Vector3(1.0f, 1.0f, 1.0f));
+				}
+			}
+		}
+		
 		_bodyEntity->SetWorldRotation(RN::Vector3(_head->GetWorldEulerAngle().x, 0.0f, 0.0f));
 
 		SceneNode::Update(delta);
@@ -439,5 +457,15 @@ namespace PF
 		{
 			_activeThread[1] = nullptr;
 		}
+	}
+
+	void Player::Eat()
+	{
+		if(_eggCounter >= 5) return;
+		
+		_eggCounter += 1;
+		
+		float size = _eggCounter * 0.2f + 1.0f;
+		_eggsEntity->SetScale(RN::Vector3(size, size, size));
 	}
 }

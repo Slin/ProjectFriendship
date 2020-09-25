@@ -23,6 +23,7 @@ namespace PF
 		void Update(float delta) override;
 		
 		void ResetThread(Thread *thread);
+		void Eat();
 		
 	private:
 		bool _isFirstFrame;
@@ -33,6 +34,9 @@ namespace PF
 		
 		RN::Entity *_airBubbleEntity;
 		float _airBubbleSize;
+		
+		RN::Entity *_eggsEntity;
+		RN::uint32 _eggCounter;
 		
 		float _rotateTimer;
 		float _snapRotationAngle;

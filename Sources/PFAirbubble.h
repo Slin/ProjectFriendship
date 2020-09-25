@@ -23,6 +23,10 @@ namespace PF
 		
 		bool AddAir(RN::Vector3 worldPosition, float radius);
 		
+		bool IsInside(RN::Vector3 worldPosition);
+		bool CanEat() const { return _currentVolume > 25; }
+		bool CanBreed() const { return _currentVolume > 100; }
+		
 	private:
 		void SimulateAir();
 		bool IsBlocked(int x, int y, int z);
@@ -34,6 +38,9 @@ namespace PF
 		float _movementTimer;
 		
 		RN::PhysXDynamicBody *_physicsBody;
+		
+		int _currentVolume;
+		void CalculateVolume();
 
 		RNDeclareMeta(Airbubble)
 	};

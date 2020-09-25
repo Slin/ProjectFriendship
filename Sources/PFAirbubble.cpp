@@ -12,7 +12,7 @@ namespace PF
 {
 	RNDefineMeta(Airbubble, RN::SceneNode)
 
-	Airbubble::Airbubble(RN::Vector3 scale) : _movementTimer(0.0f)
+	Airbubble::Airbubble(RN::Vector3 scale) : _movementTimer(0.0f), _currentVolume(0)
 	{
 		RN::Model *bubbleModel = World::GetSharedInstance()->AssignShader(RN::Model::WithName(RNCSTR("models/airbubble.sgm")), Types::MaterialAirbubble);
 		_floatingBubbleEntity = new RN::Entity(bubbleModel);
@@ -113,6 +113,8 @@ namespace PF
 						_growableBubbleEntity->SetSphere(worldPosition, radius);
 						_growableBubbleEntity->UpdateMesh();
 						
+						CalculateVolume();
+						
 						return true;
 					}
 				}
@@ -144,5 +146,39 @@ namespace PF
 		_blockedGrid[x][y][z] = World::GetSharedInstance()->DoesVoxelOverlap(worldPosition, GetWorldRotation());
 		
 		return _blockedGrid[x][y][z];
+	}
+
+	void Airbubble::CalculateVolume()
+	{
+		if(!_growableBubbleEntity) return;
+		
+		int counter = 0;
+		for(int x = 0; x < _growableBubbleEntity->GetResolutionX(); x++)
+		{
+			for(int y = 0; y < _growableBubbleEntity->GetResolutionY(); y++)
+			{
+				for(int z = 0; z < _growableBubbleEntity->GetResolutionZ(); z++)
+				{
+					if(_growableBubbleEntity->GetVoxel(x, y, z) > 127)
+					{
+						counter += 1;
+					}
+				}
+			}
+		}
+		
+		_currentVolume = counter;
+	}
+
+	bool Airbubble::IsInside(RN::Vector3 worldPosition)
+	{
+		if(!_growableBubbleEntity) return false;
+		
+		RN::Vector3 offset(_growableBubbleEntity->GetResolutionX() * 0.5f, _growableBubbleEntity->GetResolutionY() * 0.5f, _growableBubbleEntity->GetResolutionZ() * 0.5f);
+		RN::Vector3 position = GetWorldRotation().Conjugate().GetRotatedVector(worldPosition - GetWorldPosition()) / GetWorldScale();
+		position += offset;
+		RN::uint8 value = _growableBubbleEntity->GetVoxel(position);
+		
+		return value > 127;
 	}
 }

@@ -13,6 +13,7 @@
 
 namespace PF
 {
+	class Thread;
 	class Prey : public RN::Entity
 	{
 	public:
@@ -21,7 +22,7 @@ namespace PF
 		
 		void Update(float delta) override;
 		
-		void Catch(RN::Vector3 target);
+		void Catch(RN::Vector3 target, Thread *thread);
 		void ReleasePrey();
 		
 	private:
@@ -29,6 +30,7 @@ namespace PF
 		float _rotationSpeed;
 		RN::PhysXDynamicBody *_physicsBody;
 		bool _isHooked;
+		Thread *_holdingThread;
 		
 		float _energy;
 		

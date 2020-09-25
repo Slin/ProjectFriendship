@@ -64,7 +64,7 @@ namespace PF
 		if(_anchoredPrey)
 		{
 			_position[0] = _anchoredPrey->GetWorldPosition();
-			_anchoredPrey->Catch(_position[1]);
+			_anchoredPrey->Catch(_position[1], this);
 		}
 		
 		SetWorldPosition(_position[0]);
@@ -133,6 +133,11 @@ namespace PF
 	void Thread::SetPrey(Prey *prey)
 	{
 		if(!_isAnchored[0] && _stickyTimer[0] < 2.0f)
+		{
+			_anchoredPrey = prey;
+		}
+		
+		if(!prey)
 		{
 			_anchoredPrey = prey;
 		}

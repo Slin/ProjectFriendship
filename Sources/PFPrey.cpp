@@ -14,7 +14,7 @@ namespace PF
 {
 	RNDefineMeta(Prey, RN::Entity)
 
-	Prey::Prey(RN::Model *model) : _rotationChangeTimer(0.0f), _rotationSpeed(0.0f), _isHooked(false), _energy(1.0f)
+	Prey::Prey(RN::Model *model) : _rotationChangeTimer(0.0f), _rotationSpeed(0.0f), _isHooked(false), _holdingThread(nullptr), _energy(1.0f)
 	{
 		SetModel(model->Copy());
 		GetModel()->SetSkeleton(model->GetSkeleton()->Copy());
@@ -84,7 +84,7 @@ namespace PF
 				if(contactInfo[0].node->IsKindOfClass(Thread::GetMetaClass()))
 				{
 					Thread *thread = contactInfo[0].node->Downcast<Thread>();
-					Catch(GetWorldPosition());
+					Catch(GetWorldPosition(), nullptr);
 					thread->SetPrey(this);
 				}
 				
@@ -102,12 +102,27 @@ namespace PF
 			
 			_energy = std::max(0.0f, _energy - delta * 0.1f);
 			GetModel()->GetSkeleton()->Update(delta * 24.0f * _energy);
+			
+			Airbubble *otherBubble = World::GetSharedInstance()->FindClosestAirbubble(GetWorldPosition(), nullptr);
+			if(otherBubble && otherBubble->CanEat())
+			{
+				float distance = otherBubble->GetWorldPosition().GetDistance(GetWorldPosition());
+				if(distance < 3.0f)
+				{
+					if(otherBubble->IsInside(GetWorldPosition()))
+					{
+						World::GetSharedInstance()->GetPlayer()->Eat();
+						if(_holdingThread) _holdingThread->SetPrey(nullptr);
+						World::GetSharedInstance()->RemoveLevelNode(this);
+					}
+				}
+			}
 		}
 
 		SceneNode::Update(delta);
 	}
 
-	void Prey::Catch(RN::Vector3 target)
+	void Prey::Catch(RN::Vector3 target, Thread *thread)
 	{
 		if(!_isHooked)
 		{
@@ -117,6 +132,7 @@ namespace PF
 		}
 		
 		_targetPosition = target;
+		_holdingThread = thread;
 	}
 
 	void Prey::ReleasePrey()
@@ -125,6 +141,7 @@ namespace PF
 		_physicsBody->SetEnableKinematic(true);
 		SetWorldRotation(RN::Vector3(0.0f, 0.0f, 0.0f));
 		_rotationChangeTimer = -1.0f;
+		_holdingThread = nullptr;
 		
 		_energy = 1.0f;
 	}
