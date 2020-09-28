@@ -1,2 +1,2 @@
 cd "$(dirname "$0")"
-ProjectFriendship.app/Contents/MacOS/ProjectFriendship --pancake
+WaterSpiderSimulator.app/Contents/MacOS/WaterSpiderSimulator --pancake

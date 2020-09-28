@@ -1,6 +1,6 @@
 {
-	"bundle-id": "com.slindev.friendship",
-	"name": "ProjectFriendship",
+	"bundle-id": "com.slindev.waterspidersimulator",
+	"name": "Water Spider Simulator",
 	"build-directory": "Builds",
 	"release-directory": "Releases",
 	"cmake-build-type": "Release",
@@ -17,7 +17,7 @@
 		"zlibstatic",
 		"jansson",
 		"png_static",
-		"ProjectFriendship"
+		"WaterSpiderSimulator"
 	],
 	"permissions~android":
 	[
@@ -25,7 +25,6 @@
 	],
 	"keystore~android": "../../AndroidReleaseKeyStore",
 	"appinfo-file-oculus": "Other/appinfo-oculus.json",
-	"appname-itchio": "water-spider-simulator",
 	"dependencies":
 	{
 		

@@ -1,1 +1,1 @@
-ProjectFriendship.exe --pancake
+WaterSpiderSimulator.exe --pancake

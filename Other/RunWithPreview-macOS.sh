@@ -1,2 +1,2 @@
 cd "$(dirname "$0")"
-ProjectFriendship.app/Contents/MacOS/ProjectFriendship --openvr --preview
+WaterSpiderSimulator.app/Contents/MacOS/WaterSpiderSimulator --openvr --preview
