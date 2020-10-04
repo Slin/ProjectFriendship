@@ -14,18 +14,17 @@
 #endif
 
 #include "rayne.hlsl"
-//#include "utilities.hlsl"
 
 #if RN_UV0 || PF_CAUSTICS
-SamplerState linearRepeatSampler;
-Texture2D texture0;
+[[vk::binding(3)]] SamplerState linearRepeatSampler : register(s0);
+[[vk::binding(4)]] Texture2D texture0 : register(t0);
 
 #if RN_UV0 && PF_CAUSTICS
-	Texture2D texture1;
+	[[vk::binding(5)]] Texture2D texture1 : register(t1);
 #endif
 #endif
 
-cbuffer vertexUniforms
+[[vk::binding(1)]] cbuffer vertexUniforms : register(b0)
 {
 	matrix modelMatrix;
 	matrix modelViewProjectionMatrix;
@@ -44,7 +43,7 @@ cbuffer vertexUniforms
 #endif
 };
 
-cbuffer fragmentUniforms
+[[vk::binding(2)]] cbuffer fragmentUniforms : register(b1)
 {
 	float4 cameraAmbientColor;
 };

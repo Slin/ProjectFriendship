@@ -67,11 +67,11 @@ half4 text_fragment(FragmentVertex vert) : SV_TARGET
 	half4 color = vert.color;
 
 #if RN_UV0
-	float curve = (vert.texCoords.x * vert.texCoords.x - vert.texCoords.y);
+	half curve = (vert.texCoords.x * vert.texCoords.x - vert.texCoords.y);
 
-	float px = ddx(curve);
-	float py = ddy(curve);
-	float dist = curve / sqrt(px * px + py * py); //Normalize to pixelsize for anti aliasing
+	half px = ddx(curve);
+	half py = ddy(curve);
+	half dist = curve / sqrt(px * px + py * py); //Normalize to pixelsize for anti aliasing
 
 	color.a = saturate(0.5 - dist * vert.texCoords.z);
 #endif

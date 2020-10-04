@@ -93,7 +93,7 @@ namespace PF
 		_player->GetHead()->AddChild(_message);
 		
 		_message->ShowMessage(RNCSTR("Walk around using the thumbsticks."), 5.0f, [&](){
-			_message->ShowMessage(RNCSTR("Throw yourself up using bith grabs to jump."), 5.0f, [&](){
+			_message->ShowMessage(RNCSTR("Throw yourself up using both grabs to jump."), 5.0f, [&](){
 				_message->ShowMessage(RNCSTR("Swim with your hands."), 5.0f, [&](){
 					_message->ShowMessage(RNCSTR("Shoot nets with trigger."), 5.0f, [&](){
 						_message->ShowMessage(RNCSTR("Hold trigger to shoot and stay attached."), 5.0f, [&](){

@@ -360,7 +360,6 @@ namespace PF
 
 			_previewCamera->SetAmbientColor(_cameraTargetAmbientColor);
 			_previewCamera->GetRenderPass()->SetClearColor(RN::Color::Black());
-			_previewCamera->GetRenderPass()->SetFlags(RN::RenderPass::Flags::ClearColor | RN::RenderPass::Flags::ClearDepthStencil);
 
 			if(_msaa > 1)
 			{
