@@ -14,7 +14,6 @@
 #endif
 
 #include "rayne.hlsl"
-//#include "utilities.hlsl"
 
 #if RN_UV0 || PF_CAUSTICS
 SamplerState linearRepeatSampler;
@@ -30,7 +29,7 @@ cbuffer vertexUniforms
 	matrix modelMatrix;
 	matrix modelViewProjectionMatrix;
 
-	RN_ANIMATION_VERTEX_UNIFORMS;
+	RN_ANIMATION_VERTEX_UNIFORMS
 
 	float4 ambientColor;
 	float4 diffuseColor;
@@ -62,7 +61,7 @@ struct InputVertex
 	[[vk::location(5)]] float2 texCoords : TEXCOORD0;
 #endif
 
-	RN_ANIMATION_VERTEX_DATA;
+	RN_ANIMATION_VERTEX_DATA
 };
 
 struct FragmentVertex
@@ -96,8 +95,8 @@ FragmentVertex main_vertex(InputVertex vert)
 	result.texCoords = vert.texCoords;
 #endif
 
-	float4 position = RN_ANIMATION_TRANSFORM(float4(vert.position, 1.0), vert);
-	float4 normal = RN_ANIMATION_TRANSFORM(float4(vert.normal, 0.0), vert);
+	float4 position = RN_ANIMATION_TRANSFORM(float4(vert.position, 1.0), vert)
+	float4 normal = RN_ANIMATION_TRANSFORM(float4(vert.normal, 0.0), vert)
 
 #if PF_CAUSTICS || PF_FOG
 	result.worldPosition = mul(modelMatrix, position).xyz;
