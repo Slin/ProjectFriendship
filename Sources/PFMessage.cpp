@@ -204,7 +204,7 @@ namespace PF
 				return nullptr;
 			}
 			
-			KG::TriangleMesh triangleMesh = KG::MeshGeneratorLoopBlinn::GetMeshForPathCollection(paths, false);
+			KG::TriangleMesh triangleMesh = KG::MeshGeneratorLoopBlinn::GetMeshForPathCollection(paths);
 			
 			characterModel = ModelForTriangleMesh(triangleMesh);
 			_characters[character] = characterModel->Retain();
